@@ -1,0 +1,24 @@
+{
+  "name": "piksha",
+  "version": "0.0.1",
+  "description": "A web application for capturing image metadata.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jshint index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/adscott/piksha.git"
+  },
+  "author": "Adam Scott",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/adscott/piksha/issues"
+  },
+  "dependencies": {
+    "express": "~4.13.3"
+  },
+  "devDependencies": {
+    "jshint": "~2.8.0"
+  }
+}
