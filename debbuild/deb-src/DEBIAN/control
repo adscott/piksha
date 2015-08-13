@@ -1,0 +1,9 @@
+Package: piksha
+Version: 0.0.1
+Section: base
+Priority: optional
+Architecture: all
+Installed-Size: SIZE
+Depends:
+Maintainer: Adam Scott
+Description: A web application for capturing image metadata.

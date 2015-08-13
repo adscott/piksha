@@ -1,0 +1,17 @@
+#!/bin/bash
+
+mkdir /var/log/piksha
+
+# Create the needed user. It needs to be 'piksha'
+useradd -r -d /opt/piksha -s /bin/false piksha
+
+# Change all files to be owned by this user
+chown -R piksha:piksha /opt/piksha
+chown -R piksha:piksha /var/log/piksha
+
+# Install app dependencies
+cd /opt/piksha
+su piksha -s /bin/bash -c "npm install --production"
+
+# Start the services!
+start piksha

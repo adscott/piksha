@@ -4,6 +4,7 @@
   "description": "A web application for capturing image metadata.",
   "main": "index.js",
   "scripts": {
+    "package": "cd debbuild && rm -f piksha-1.deb && ./redeb.sh",
     "test": "jshint index.js"
   },
   "repository": {
