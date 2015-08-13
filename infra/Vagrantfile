@@ -14,4 +14,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.synced_folder '../', '/home/vagrant/workspace'
 
   config.ssh.forward_agent = true
+
+  if Vagrant.has_plugin?('vagrant-proxyconf') && ENV.has_key?('http_proxy')
+    config.proxy.http = ENV['http_proxy']
+  end
 end
