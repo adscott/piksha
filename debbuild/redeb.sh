@@ -10,7 +10,7 @@ DIST=`mktemp -d`
 SYSROOT=${SRC}/sysroot
 APPROOT=${SYSROOT}/opt/piksha
 DEBIAN=${SRC}/DEBIAN
-VERSION=`nodejs -e 'console.log(require("../package.json").version);'`
+VERSION=`node -e 'console.log(require("../package.json").version);'`
 
 
 cp -r deb-src/* ${SRC}/
