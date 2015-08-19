@@ -10,6 +10,7 @@ DIST=`mktemp -d`
 SYSROOT=${SRC}/sysroot
 APPROOT=${SYSROOT}/opt/piksha
 DEBIAN=${SRC}/DEBIAN
+VERSION=`nodejs -e 'console.log(require("../package.json").version);'`
 
 
 cp -r deb-src/* ${SRC}/
@@ -30,6 +31,7 @@ pushd ${SYSROOT}/
 tar czf ${DIST}/data.tar.gz [a-z]*
 popd
 sed s"/SIZE/${SIZE}/" -i ${DEBIAN}/control
+sed s"/VERSION/${VERSION}/" -i ${DEBIAN}/control
 pushd ${DEBIAN}
 tar czf ${DIST}/control.tar.gz *
 popd
