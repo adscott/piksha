@@ -9,6 +9,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.network 'forwarded_port', guest: 8888, host: 8888
 
   config.vm.provision 'file', source: '~/.gitconfig', destination: '.gitconfig'
+  config.vm.provision 'file', source: 'files/config.json', destination: 'config.json'
   config.vm.provision 'shell', path: 'provision.sh'
 
   config.vm.synced_folder '../', '/home/vagrant/workspace'

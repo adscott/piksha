@@ -1,8 +1,9 @@
 var express = require('express');
 var app = express();
+var config = require('/etc/piksha/config')
 
 app.get('/', function (req, res) {
-  res.send('Hello World');
+  res.send(config.greeting);
 });
 
-app.listen(8888);
+app.listen(config.port);
