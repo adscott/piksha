@@ -5,8 +5,22 @@
   </head>
   <body>
     <div id="container" />
-    <script src="react/react.min.js"></script>
-    <script src="react/JSXTransformer.js"></script>
-    <script type="text/jsx" src="client/application/piksha.js"></script>
+    <script src="/n-js/n.min.js"></script>
+    <script src="/lodash/index.js"></script>
+    <script src="/jquery/jquery.min.js"></script>
+    <script src="/react/react.min.js"></script>
+    <script src="/react/JSXTransformer.js"></script>
+
+    <script type="text/jsx" src="/client/application/main.js"></script>
+    <script type="text/jsx" src="/client/application/greeting.js"></script>
+    <script type="text/jsx" src="/client/auth/login-dialog.js"></script>
+    <script type="text/jsx" src="/client/auth/key-service.js"></script>
+
+    <script type="text/jsx">
+      React.render(
+          <piksha.application.Main />,
+          document.getElementById('container')
+        );
+    </script>
   </body>
 </html>

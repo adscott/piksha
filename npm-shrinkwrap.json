@@ -244,6 +244,11 @@
       "from": "express-force-ssl@*",
       "resolved": "https://registry.npmjs.org/express-force-ssl/-/express-force-ssl-0.2.13.tgz"
     },
+    "jquery": {
+      "version": "2.1.4",
+      "from": "jquery@*",
+      "resolved": "https://registry.npmjs.org/jquery/-/jquery-2.1.4.tgz"
+    },
     "react": {
       "version": "0.13.3",
       "from": "react@>=0.13.3 <0.14.0",
