@@ -239,6 +239,11 @@
         }
       }
     },
+    "express-force-ssl": {
+      "version": "0.2.13",
+      "from": "express-force-ssl@*",
+      "resolved": "https://registry.npmjs.org/express-force-ssl/-/express-force-ssl-0.2.13.tgz"
+    },
     "react": {
       "version": "0.13.3",
       "from": "react@>=0.13.3 <0.14.0",

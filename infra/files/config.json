@@ -1,6 +1,7 @@
 {
-  "port": 8888,
-  "greeting": "Hello, yes, this is dog!",
+  "httpPort": 8080,
+  "httpsPort": 8443,
+  "publicHttpsPort": 8443,
   "sslKey": "/etc/ssl/certs/server.key",
   "sslCert": "/etc/ssl/certs/server.crt"
 }
