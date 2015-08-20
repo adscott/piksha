@@ -16,7 +16,7 @@ VERSION=`node -e 'console.log(require("../package.json").version);'`
 cp -r deb-src/* ${SRC}/
 mkdir -p ${APPROOT}
 
-cp ../index.js ${APPROOT}/
+cp -r ../app ${APPROOT}/
 cp ../npm-shrinkwrap.json ${APPROOT}/
 cp ../package.json ${APPROOT}/
 cp ../README.md ${APPROOT}/
