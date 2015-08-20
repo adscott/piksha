@@ -249,6 +249,16 @@
       "from": "jquery@*",
       "resolved": "https://registry.npmjs.org/jquery/-/jquery-2.1.4.tgz"
     },
+    "lodash": {
+      "version": "3.10.1",
+      "from": "lodash@*",
+      "resolved": "https://registry.npmjs.org/lodash/-/lodash-3.10.1.tgz"
+    },
+    "n-js": {
+      "version": "1.0.0",
+      "from": "n-js@*",
+      "resolved": "https://registry.npmjs.org/n-js/-/n-js-1.0.0.tgz"
+    },
     "react": {
       "version": "0.13.3",
       "from": "react@>=0.13.3 <0.14.0",
