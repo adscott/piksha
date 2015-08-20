@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "package": "cd debbuild && rm -f piksha-1.deb && ./redeb.sh",
-    "test": "jshint index.js"
+    "test": "eslint .",
+    "start": "node app/server/index.js"
   },
   "repository": {
     "type": "git",
@@ -17,9 +18,11 @@
     "url": "https://github.com/adscott/piksha/issues"
   },
   "dependencies": {
-    "express": "~4.13.3"
+    "express": "~4.13.3",
+    "react": "^0.13.3"
   },
   "devDependencies": {
-    "jshint": "~2.8.0"
+    "eslint": "^1.2.0",
+    "eslint-plugin-react": "^3.2.3"
   }
 }

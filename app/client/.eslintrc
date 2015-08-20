@@ -1,0 +1,16 @@
+{
+  "env": {
+    "browser": true
+  },
+  "ecmaFeatures": {
+    "jsx": true,
+    "experimentalObjectRestSpread": true
+  },
+  "globals": {
+    "React": true
+  },
+  "plugins": [
+    "react"
+  ],
+  "extends": "../../.eslintrc"
+}
