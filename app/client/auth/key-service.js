@@ -1,20 +1,26 @@
 n('piksha.auth', function (ns) {
   ns.KeyService = {
-    instance: function () {
+    create: function () {
       return {
         authenticate: function (value) {
           return new Promise(function (resolve, reject) {
-            $.ajax({
-              url: '/api/?key=' + encodeURIComponent(value),
-              dataType: 'json',
-              cache: false,
-              success: function (data) {
-                resolve(data.user);
-              },
-              error: function () {
-                reject();
-              }
-            });
+            $.ajax('/auth', {
+              method: 'POST',
+              data: JSON.stringify({key: value}),
+              contentType: 'application/json'
+            })
+              .done(function (data) { resolve(data.user); })
+              .fail(reject);
+          });
+        },
+        currentUser: function () {
+          return new Promise(function (resolve, reject) {
+            $.ajax('/api/', {
+              method: 'GET',
+              contentType: 'application/json'
+            })
+              .done(function (data) { resolve(data.user); })
+              .fail(reject);
           });
         }
       };

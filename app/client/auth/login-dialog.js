@@ -4,7 +4,7 @@ n('piksha.auth', function (ns) {
       e.preventDefault();
 
       var key = React.findDOMNode(this.refs.key).value.trim();
-      var keyService = piksha.auth.KeyService.instance();
+      var keyService = piksha.auth.KeyService.create();
 
       keyService.authenticate(key).then(this.props.loginSuccess);
     },

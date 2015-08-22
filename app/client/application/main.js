@@ -1,17 +1,29 @@
 n('piksha.application', function (ns) {
   ns.Main = React.createClass({
-    getInitialState: function() {
-      return {user: ''};
+    getInitialState: function () {
+      return {route: 'loading'};
     },
-    loginSuccess: function (value) {
-      this.setState({user: value});
+    componentDidMount: function () {
+      var self = this;
+      piksha.auth.KeyService.create().currentUser().then(
+        function () {
+          self.setState({route: 'media'});
+        },
+        function () {
+          self.setState({route: 'login'});
+        }
+      );
+    },
+    loginSuccess: function () {
+      this.setState({route: 'media'});
     },
     render: function() {
-      if (this.state.user) {
-        return <piksha.application.Greeting user={this.state.user}/>;
-      } else {
-        return <piksha.auth.LoginDialog loginSuccess={this.loginSuccess}/>;
-      }
+      var routes = {
+        media: <piksha.media.Overview />,
+        login: <piksha.auth.LoginDialog loginSuccess={this.loginSuccess} />,
+        loading: <img src="/client/assets/img/loader.gif" />
+      };
+      return routes[this.state.route];
     }
   });
 });
