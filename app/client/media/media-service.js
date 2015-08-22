@@ -7,6 +7,11 @@ n('piksha.media', function (ns) {
           return new Promise(function (resolve) {
             $.get('/api/albums').done(resolve);
           });
+        },
+        asset: function (url) {
+          return new Promise(function (resolve) {
+            $.get(url).done(resolve);
+          });
         }
       };
     }

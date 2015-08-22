@@ -64,22 +64,32 @@ function callFlickr(opts) {
   });
 }
 
-module.exports = {
-  readAlbums: function () {
-    return new Promise(function (resolve, reject) {
-      memcached.get('albums', function (err, result) {
-        if (err) {
-          reject();
-        } else {
-          resolve(JSON.parse(result));
-        }
-      });
+function readMemcache(key) {
+  return new Promise(function (resolve, reject) {
+    memcached.get(key, function (err, result) {
+      if (err) {
+        reject();
+      } else {
+        resolve(JSON.parse(result));
+      }
     });
+  });
+}
+
+module.exports = {
+  readAlbum: function (albumId) {
+    return readMemcache('album-' + albumId);
+  },
+  readAlbums: function () {
+    return readMemcache('albums');
   },
   fetchContent: function () {
-    callFlickr({method: 'flickr.photosets.getList'})
-      .then(function (list) {
-        var photosets = list.photosets.photoset;
+    var albumsPromise = callFlickr({method: 'flickr.photosets.getList'})
+      .then(function (list) { return list.photosets.photoset; });
+
+
+    albumsPromise
+      .then(function (photosets) {
         return Promise.all(_.map(photosets, function (photoset) {
           return callFlickr({
             method: 'flickr.photos.getSizes',
@@ -88,7 +98,7 @@ module.exports = {
         })).then(function (primaries) {
           return _.map(photosets, function (photoset, index) {
             return {
-              url: '/albums/' + photoset.id,
+              url: '/api/albums/' + photoset.id,
               title: photoset.title,
               thumbnail: _.find(primaries[index].sizes.size, function (size) { return size.label === 'Large Square'; }).source
             };
@@ -98,6 +108,48 @@ module.exports = {
       .then(function (albums) {
         memcached.set('albums', JSON.stringify(albums), 0, function (err) {
           if (err) throw new Error(err);
+        });
+      });
+
+    albumsPromise
+      .then(function (photosets) {
+        return Promise.all(_.map(photosets, function (photoset) {
+          return callFlickr({
+            method: 'flickr.photosets.getPhotos',
+            photoset_id: photoset.id
+          });
+        }));
+      })
+      .then(function (list) { return _.pluck(list, 'photoset'); })
+      .then(function (photosets) {
+        return Promise.all(_.map(photosets, function (photoset) {
+          return Promise.all(_.map(photoset.photo, function (photo) {
+            return callFlickr({
+              method: 'flickr.photos.getSizes',
+              photo_id: photo.id
+            }).then(function (sizes) {
+              return {
+                title: photo.title,
+                full: _.find(sizes.sizes.size, function (size) { return size.label === 'Large 1600'; }).source,
+                thumbnail: _.find(sizes.sizes.size, function (size) { return size.label === 'Large Square'; }).source
+              };
+            });
+          })).then(function (photos) {
+            return {
+              id: photoset.id,
+              data: {
+                title: photoset.title,
+                photos: photos
+              }
+            };
+          });
+        }));
+      })
+      .then(function(albums) {
+        _.each(albums, function (album) {
+          memcached.set('album-' + album.id, JSON.stringify(album.data), 0, function (err) {
+            if (err) throw new Error(err);
+          });
         });
       });
   }

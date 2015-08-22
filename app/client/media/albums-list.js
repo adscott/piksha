@@ -10,14 +10,27 @@ n('piksha.media', function (ns) {
         self.setState({albums: albums});
       });
     },
+    albumChosen: function (album) {
+      this.props.albumChosen(album);
+    },
     render: function () {
-      return <ul>{this.state.albums.map(function (album) { return <ns.AlbumTile album={album} />; })}</ul>;
+      var albumChosen = this.albumChosen;
+      return <ul>{this.state.albums.map(function (album) { return <ns.AlbumTile album={album} albumChosen={albumChosen} />; })}</ul>;
     }
   });
 
   ns.AlbumTile = React.createClass({
+    albumChosen: function (e) {
+      e.preventDefault();
+      this.props.albumChosen(this.props.album.url);
+    },
     render: function () {
-      return <li><img src={this.props.album.thumbnail} /></li>;
+      return <li>
+        <a href="#" onClick={this.albumChosen}>
+          <img src={this.props.album.thumbnail} />
+          <span>{this.props.album.title}</span>
+        </a>
+      </li>;
     }
   });
 });
