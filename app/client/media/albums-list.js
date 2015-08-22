@@ -25,7 +25,7 @@ n('piksha.media', function (ns) {
       this.props.albumChosen(this.props.album.url);
     },
     render: function () {
-      return <li>
+      return <li className="thumbnail">
         <a href="#" onClick={this.albumChosen}>
           <img src={this.props.album.thumbnail} />
           <span>{this.props.album.title}</span>

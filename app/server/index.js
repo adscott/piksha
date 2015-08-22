@@ -6,6 +6,11 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var forceSSL = require('express-force-ssl');
+var sass    = require('node-sass')
+var neat = require('node-neat');
+
+
+
 
 var auth = require('./auth');
 var photos = require('./photos');
@@ -29,6 +34,22 @@ app.use('/client', express.static(path.join(clientDir)));
 
 app.get('/', function (req, res) {
   res.sendFile(path.join(clientDir, 'index.html'));
+});
+
+app.get('/client/styles/main.css', function (req, res) {
+  sass.render({
+    file: path.join(clientDir, 'styles/main.scss'),
+    includePaths: neat.includePaths,
+    outputStyle: 'compressed'
+  }, function (err, result) {
+    res.set('Content-Type', 'text/css');
+    if (err) {
+      console.log(err);
+      res.status(500).send('');
+    } else {
+      res.send(result.css);
+    }
+  });
 });
 
 app.post('/auth', function (req, res) {

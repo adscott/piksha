@@ -24,7 +24,7 @@ n('piksha.media', function (ns) {
 
   ns.PhotoTile = React.createClass({
     render: function () {
-      return <li>
+      return <li className="thumbnail">
         <img src={this.props.photo.thumbnail} />
         <span>{this.props.photo.title}</span>
       </li>;

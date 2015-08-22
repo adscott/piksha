@@ -1,0 +1,56 @@
+@import 'bourbon';
+@import 'neat';
+
+$gutter: 100px;
+$copy-color: #424242;
+$link-color: #105289;
+$bg-color: #E0E0E0;
+$ui-bg-color: darken($bg-color, 10);
+$border-color: darken($bg-color, 20);
+$border-radius: 20px;
+
+body {
+  background-color: $bg-color;
+  color: $copy-color;
+  font-size: 120%;
+  font-family: 'PT Sans', Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: $link-color;
+  text-decoration: none;
+
+  &:hover {
+    color: darken($link-color, 5);
+  }
+}
+
+#container {
+  @include outer-container;
+}
+
+#login {
+  @include span-columns(6);
+  @include shift(3);
+  margin-top: $gutter;
+  padding: $gutter/2 $gutter;
+  background-color: $ui-bg-color;
+  border: thin $border-color solid;
+  border-radius: $border-radius;
+
+  input {
+    display: block;
+    text-align: center;
+    margin: $gutter/4 auto;
+    width: 100%;
+  }
+}
+
+.thumbnail {
+  @include span-columns(2);
+  &:nth-of-type(6n) {
+    @include omega();
+  }
+
+  display: inline-block;
+}

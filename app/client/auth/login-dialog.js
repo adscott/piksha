@@ -9,7 +9,7 @@ n('piksha.auth', function (ns) {
       keyService.authenticate(key).then(this.props.loginSuccess);
     },
     render: function () {
-      return <form onSubmit={this.handleSubmit}>
+      return <form id="login" onSubmit={this.handleSubmit}>
         <input type="text" placeholder="Your key..." ref="key" />
         <input type="submit" />
       </form>;
