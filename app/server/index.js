@@ -93,5 +93,5 @@ https.createServer({
   cert: fs.readFileSync(config.sslCert)
 }, app).listen(config.httpsPort);
 
-setInterval(photos.fetchContent, 60 * 60 * 1000);
+setInterval(photos.fetchContent, 24 * 60 * 60 * 1000);
 photos.fetchContent();
