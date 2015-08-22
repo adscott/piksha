@@ -17,6 +17,7 @@ cp -r deb-src/* ${SRC}/
 mkdir -p ${APPROOT}
 
 cp -r ../app ${APPROOT}/
+cp -r ../scripts ${APPROOT}/
 cp ../npm-shrinkwrap.json ${APPROOT}/
 cp ../package.json ${APPROOT}/
 cp ../README.md ${APPROOT}/
