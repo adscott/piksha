@@ -1,6 +1,7 @@
 @import 'bourbon';
 @import 'neat';
 
+$max-width: 1200px;
 $gutter: 100px;
 $copy-color: #424242;
 $link-color: #105289;
@@ -43,6 +44,24 @@ a {
     text-align: center;
     margin: $gutter/4 auto;
     width: 100%;
+  }
+}
+
+nav {
+  @include span-columns(12);
+  @include omega();
+  display: block;
+  margin-bottom: $gutter/2;
+}
+
+.main, .caption {
+  @include span-columns(12);
+  @include omega();
+  display: block;
+  text-align: center;
+
+  img {
+    max-height: $max-width * 0.75;
   }
 }
 

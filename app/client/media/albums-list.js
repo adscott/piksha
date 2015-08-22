@@ -10,19 +10,15 @@ n('piksha.media', function (ns) {
         self.setState({albums: albums});
       });
     },
-    albumChosen: function (album) {
-      this.props.albumChosen(album);
-    },
     render: function () {
-      var albumChosen = this.albumChosen;
-      return <ul>{this.state.albums.map(function (album) { return <ns.AlbumTile album={album} albumChosen={albumChosen} />; })}</ul>;
+      return <ul>{this.state.albums.map(function (album) { return <ns.AlbumTile album={album} />; })}</ul>;
     }
   });
 
   ns.AlbumTile = React.createClass({
     albumChosen: function (e) {
       e.preventDefault();
-      this.props.albumChosen(this.props.album.url);
+      piksha.application.Router.instance().changeRoute('album', {albumUrl: this.props.album.url});
     },
     render: function () {
       return <li className="thumbnail">

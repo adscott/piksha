@@ -6,10 +6,8 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var forceSSL = require('express-force-ssl');
-var sass    = require('node-sass')
+var sass    = require('node-sass');
 var neat = require('node-neat');
-
-
 
 
 var auth = require('./auth');
@@ -44,7 +42,6 @@ app.get('/client/styles/main.css', function (req, res) {
   }, function (err, result) {
     res.set('Content-Type', 'text/css');
     if (err) {
-      console.log(err);
       res.status(500).send('');
     } else {
       res.send(result.css);

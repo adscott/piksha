@@ -6,15 +6,22 @@ n('piksha.media', function (ns) {
     componentDidMount: function() {
       var self = this;
       var mediaService = piksha.media.MediaService.create();
-      mediaService.asset(this.props.album).then(function (album) {
+      mediaService.asset(this.props.albumUrl).then(function (album) {
         self.setState({album: album});
       });
     },
+    showAlbums: function (e) {
+      e.preventDefault();
+      piksha.application.Router.instance().changeRoute('overview');
+    },
     render: function () {
       if (this.state.album) {
+        var albumUrl = this.props.albumUrl;
         return <div>
-            <a href="#" onClick={this.props.showAlbums}>Back</a>
-            <ul>{this.state.album.photos.map(function (photo) { return <ns.PhotoTile photo={photo} />; })}</ul>
+            <nav>
+              <a href="#" onClick={this.showAlbums}>Back</a>
+            </nav>
+            <ul>{this.state.album.photos.map(function (photo) { return <ns.PhotoTile photo={photo} albumUrl={albumUrl} />; })}</ul>
           </div>;
       } else {
         return <img src="/client/assets/img/loader.gif" />;
@@ -23,10 +30,19 @@ n('piksha.media', function (ns) {
   });
 
   ns.PhotoTile = React.createClass({
+    showPhoto: function (e) {
+      e.preventDefault();
+      piksha.application.Router.instance().changeRoute('photo', {
+        photo: this.props.photo,
+        albumUrl: this.props.albumUrl
+      });
+    },
     render: function () {
       return <li className="thumbnail">
-        <img src={this.props.photo.thumbnail} />
-        <span>{this.props.photo.title}</span>
+        <a href="#" onClick={this.showPhoto}>
+          <img src={this.props.photo.thumbnail} />
+          <span>{this.props.photo.title}</span>
+        </a>
       </li>;
     }
   });

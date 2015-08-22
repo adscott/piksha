@@ -6,7 +6,7 @@ n('piksha.auth', function (ns) {
       var key = React.findDOMNode(this.refs.key).value.trim();
       var keyService = piksha.auth.KeyService.create();
 
-      keyService.authenticate(key).then(this.props.loginSuccess);
+      keyService.authenticate(key).then(function () { piksha.application.Router.instance().changeRoute('overview'); });
     },
     render: function () {
       return <form id="login" onSubmit={this.handleSubmit}>

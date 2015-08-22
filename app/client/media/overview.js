@@ -11,11 +11,11 @@ n('piksha.media', function (ns) {
     },
     render: function () {
       if (this.state.album) {
-        return <piksha.media.Album album={this.state.album} showAlbums={this.showAlbums} />;
+        return <piksha.media.Album album={this.state.album} />;
       } else {
         return <div>
             <piksha.application.Greeting />
-            <piksha.media.AlbumsList albumChosen={this.showAlbum} />
+            <piksha.media.AlbumsList />
           </div>;
       }
     }
