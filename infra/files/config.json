@@ -9,5 +9,12 @@
   "memcached": {
     "host": "localhost",
     "port": 11211
+  },
+  "flickr": {
+    "baseUrl": "http://localhost:9999/",
+    "oauthToken": "token123",
+    "oauthTokenSecret": "tokensecret123",
+    "oauthClientKey": "clientkey123",
+    "oauthClientSecret": "clientsecret123"
   }
 }

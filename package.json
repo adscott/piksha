@@ -27,6 +27,7 @@
     "lodash": "^3.10.1",
     "memcached": "^2.1.0",
     "n-js": "^1.0.0",
+    "needle": "^0.10.0",
     "node-neat": "^1.7.2",
     "node-sass": "^3.2.0",
     "promise": "^7.0.4",

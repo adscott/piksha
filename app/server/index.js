@@ -11,7 +11,7 @@ var neat = require('node-neat');
 
 
 var auth = require('./auth');
-var photos = require('./photos');
+var media = require('./media');
 
 var config = require('/etc/piksha/config');
 var clientDir = path.join(__dirname, '../client');
@@ -76,13 +76,13 @@ app.get('/api/', function (req, res) {
 });
 
 app.get('/api/albums/', function (req, res) {
-  photos.readAlbums().then(function (albums) {
+  media.readAlbums().then(function (albums) {
     res.send(albums);
   });
 });
 
 app.get('/api/albums/:albumId', function (req, res) {
-  photos.readAlbum(req.params.albumId).then(function (album) {
+  media.readAlbum(req.params.albumId).then(function (album) {
     res.send(album);
   });
 });
@@ -93,5 +93,5 @@ https.createServer({
   cert: fs.readFileSync(config.sslCert)
 }, app).listen(config.httpsPort);
 
-setInterval(photos.fetchContent, 24 * 60 * 60 * 1000);
-photos.fetchContent();
+setInterval(media.fetchContent, 24 * 60 * 60 * 1000);
+media.fetchContent();

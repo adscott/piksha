@@ -2,7 +2,7 @@ var Promise = require('promise');
 var Memcached = require('memcached');
 var _ = require('lodash');
 var crypto = require('crypto');
-var https = require('https');
+var needle = require('needle');
 
 var config = require('/etc/piksha/config');
 
@@ -43,23 +43,19 @@ function callFlickr(opts) {
     nojsoncallback: '1'
   }, opts);
 
-  var baseUrl = 'https://api.flickr.com/services/rest';
+  var baseUrl = config.flickr.baseUrl;
   var baseQueryString = queryString(parameters);
   var signable = 'GET&' + encodeURIComponent(baseUrl) + '&' + encodeURIComponent(baseQueryString);
   var oauthSignature = sign(signable, config.flickr.oauthClientSecret, config.flickr.oauthTokenSecret);
   var url = baseUrl + '?' + baseQueryString + '&oauth_signature=' + oauthSignature;
 
-  return new Promise(function (resolve) {
-    https.get(url, function (res) {
-      var data = '';
-
-      res.on('data', function (chunk) {
-        data += chunk;
-      });
-
-      res.on('end', function () {
-        resolve(JSON.parse(data));
-      });
+  return new Promise(function (resolve, reject) {
+    needle.get(url, function (err, res) {
+      if (err) {
+        reject();
+      } else {
+        resolve(JSON.parse(res.body));
+      }
     });
   });
 }
@@ -76,6 +72,18 @@ function readMemcache(key) {
   });
 }
 
+function writeMemcache(key, value) {
+  return new Promise(function (resolve, reject) {
+    memcached.set(key, JSON.stringify(value), 0, function (err) {
+      if (err) {
+        reject();
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
 module.exports = {
   readAlbum: function (albumId) {
     return readMemcache('album-' + albumId);
@@ -84,11 +92,10 @@ module.exports = {
     return readMemcache('albums');
   },
   fetchContent: function () {
-    var albumsPromise = callFlickr({method: 'flickr.photosets.getList'})
+    var flickrAlbumsPromise = callFlickr({method: 'flickr.photosets.getList'})
       .then(function (list) { return list.photosets.photoset; });
 
-
-    albumsPromise
+    var albumsListSavedPromise = flickrAlbumsPromise
       .then(function (photosets) {
         return Promise.all(_.map(photosets, function (photoset) {
           return callFlickr({
@@ -106,12 +113,10 @@ module.exports = {
         });
       })
       .then(function (albums) {
-        memcached.set('albums', JSON.stringify(albums), 0, function (err) {
-          if (err) throw new Error(err);
-        });
+        return writeMemcache('albums', albums);
       });
 
-    albumsPromise
+    var albumsSavedPromise = flickrAlbumsPromise
       .then(function (photosets) {
         return Promise.all(_.map(photosets, function (photoset) {
           return callFlickr({
@@ -146,11 +151,11 @@ module.exports = {
         }));
       })
       .then(function(albums) {
-        _.each(albums, function (album) {
-          memcached.set('album-' + album.id, JSON.stringify(album.data), 0, function (err) {
-            if (err) throw new Error(err);
-          });
-        });
+        return Promise.all(_.map(albums, function (album) {
+          return writeMemcache('album-' + album.id, album.data);
+        }));
       });
+
+    return Promise.all([albumsListSavedPromise, albumsSavedPromise]);
   }
 };
