@@ -72,4 +72,20 @@ nav {
   }
 
   display: inline-block;
+  height: 250px;
+  overflow: hidden;
+
+  img {
+    height: 150px;
+    width: 150px;
+  }
+
+  .loaded {
+    animation: fadein 2s;
+  }
+
+  @keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
 }

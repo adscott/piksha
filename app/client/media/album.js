@@ -40,7 +40,7 @@ n('piksha.media', function (ns) {
     render: function () {
       return <li className="thumbnail">
         <a href="#" onClick={this.showPhoto}>
-          <img src={this.props.photo.thumbnail} />
+          <ns.Thumbnail src={this.props.photo.thumbnail} />
           <span>{this.props.photo.title}</span>
         </a>
       </li>;
