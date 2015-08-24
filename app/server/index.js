@@ -87,6 +87,12 @@ app.get('/api/albums/:albumId', function (req, res) {
   });
 });
 
+app.get('/api/photos/:photoId', function (req, res) {
+  media.readPhoto(req.params.photoId).then(function (photo) {
+    res.send(photo);
+  });
+});
+
 http.createServer(app).listen(config.httpPort);
 https.createServer({
   key: fs.readFileSync(config.sslKey),

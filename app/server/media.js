@@ -91,11 +91,14 @@ module.exports = {
   readAlbums: function () {
     return readMemcache('albums');
   },
+  readPhoto: function (photoId) {
+    return readMemcache('photo-' + photoId);
+  },
   fetchContent: function () {
     var flickrAlbumsPromise = callFlickr({method: 'flickr.photosets.getList'})
       .then(function (list) { return list.photosets.photoset; });
 
-    var albumsListSavedPromise = flickrAlbumsPromise
+    flickrAlbumsPromise
       .then(function (photosets) {
         return Promise.all(_.map(photosets, function (photoset) {
           return callFlickr({
@@ -116,7 +119,7 @@ module.exports = {
         return writeMemcache('albums', albums);
       });
 
-    var albumsSavedPromise = flickrAlbumsPromise
+    flickrAlbumsPromise
       .then(function (photosets) {
         return Promise.all(_.map(photosets, function (photoset) {
           return callFlickr({
@@ -129,33 +132,33 @@ module.exports = {
       .then(function (photosets) {
         return Promise.all(_.map(photosets, function (photoset) {
           return Promise.all(_.map(photoset.photo, function (photo) {
-            return callFlickr({
+            var photoSizesPromise = callFlickr({
               method: 'flickr.photos.getSizes',
               photo_id: photo.id
-            }).then(function (sizes) {
-              return {
+            });
+
+            photoSizesPromise.then(function (sizes) {
+              return writeMemcache('photo-' + photo.id, {
                 title: photo.title,
                 full: _.find(sizes.sizes.size, function (size) { return size.label === 'Large 1600'; }).source,
+                album: '/api/album/' + photoset.id
+              });
+            });
+
+            return photoSizesPromise.then(function (sizes) {
+              return {
+                title: photo.title,
+                url: '/api/photos/' + photo.id,
                 thumbnail: _.find(sizes.sizes.size, function (size) { return size.label === 'Large Square'; }).source
               };
             });
           })).then(function (photos) {
-            return {
-              id: photoset.id,
-              data: {
-                title: photoset.title,
-                photos: photos
-              }
-            };
+            return writeMemcache('album-' + photoset.id, {
+              title: photoset.title,
+              photos: photos
+            });
           });
         }));
-      })
-      .then(function(albums) {
-        return Promise.all(_.map(albums, function (album) {
-          return writeMemcache('album-' + album.id, album.data);
-        }));
       });
-
-    return Promise.all([albumsListSavedPromise, albumsSavedPromise]);
   }
 };

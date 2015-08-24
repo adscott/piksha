@@ -52,6 +52,9 @@ nav {
   @include omega();
   display: block;
   margin-bottom: $gutter/2;
+  a {
+    margin-right: $gutter;
+  }
 }
 
 .main, .caption {

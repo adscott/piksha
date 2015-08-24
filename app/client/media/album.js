@@ -24,7 +24,7 @@ n('piksha.media', function (ns) {
             <ul>{this.state.album.photos.map(function (photo) { return <ns.PhotoTile photo={photo} albumUrl={albumUrl} />; })}</ul>
           </div>;
       } else {
-        return <img src="/client/assets/img/loader.gif" />;
+        return <piksha.application.Loading />;
       }
     }
   });
@@ -33,7 +33,7 @@ n('piksha.media', function (ns) {
     showPhoto: function (e) {
       e.preventDefault();
       piksha.application.Router.instance().changeRoute('photo', {
-        photo: this.props.photo,
+        photoUrl: this.props.photo.url,
         albumUrl: this.props.albumUrl
       });
     },
