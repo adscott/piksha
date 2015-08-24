@@ -17,6 +17,7 @@ openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
 
 sudo mv /home/vagrant/server.* /etc/ssl/certs/
 
-npm install --prefix /vagrant/files/flickr
+sudo cp -r /vagrant/files/flickr /opt/flickr
+sudo npm install --prefix /opt/flickr
 sudo cp /vagrant/files/flickr.conf /etc/init/
 sudo start flickr
