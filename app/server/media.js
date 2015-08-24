@@ -54,7 +54,7 @@ function callFlickr(opts) {
       if (err) {
         reject();
       } else {
-        resolve(JSON.parse(res.body));
+        resolve(res.body);
       }
     });
   });
