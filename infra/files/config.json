@@ -4,6 +4,7 @@
   "publicHttpsPort": 8443,
   "sslKey": "/etc/ssl/certs/server.key",
   "sslCert": "/etc/ssl/certs/server.crt",
+  "sslBundle": "/etc/ssl/certs/server.bundle",
   "users": ["bruce", "wayne"],
   "secret": "some big long secret",
   "memcached": {

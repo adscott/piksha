@@ -96,7 +96,8 @@ app.get('/api/photos/:photoId', function (req, res) {
 http.createServer(app).listen(config.httpPort);
 https.createServer({
   key: fs.readFileSync(config.sslKey),
-  cert: fs.readFileSync(config.sslCert)
+  cert: fs.readFileSync(config.sslCert),
+  ca: fs.readFileSync(config.sslBundle)
 }, app).listen(config.httpsPort);
 
 setInterval(media.fetchContent, 24 * 60 * 60 * 1000);
