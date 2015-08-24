@@ -10,7 +10,7 @@ n('piksha.auth', function (ns) {
     },
     render: function () {
       return <form id="login" onSubmit={this.handleSubmit}>
-        <input type="text" placeholder="Your key..." ref="key" />
+        <input type="password" placeholder="Your key..." ref="key" />
         <input type="submit" />
       </form>;
     }
