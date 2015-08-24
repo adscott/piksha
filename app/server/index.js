@@ -9,7 +9,6 @@ var forceSSL = require('express-force-ssl');
 var sass    = require('node-sass');
 var neat = require('node-neat');
 
-
 var auth = require('./auth');
 var media = require('./media');
 
