@@ -98,7 +98,7 @@ module.exports = {
     var flickrAlbumsPromise = callFlickr({method: 'flickr.photosets.getList'})
       .then(function (list) { return list.photosets.photoset; });
 
-    flickrAlbumsPromise
+    var albumListPromise = flickrAlbumsPromise
       .then(function (photosets) {
         return Promise.all(_.map(photosets, function (photoset) {
           return callFlickr({
@@ -119,7 +119,7 @@ module.exports = {
         return writeMemcache('albums', albums);
       });
 
-    flickrAlbumsPromise
+    var albumsAndPhotosPromise = flickrAlbumsPromise
       .then(function (photosets) {
         return Promise.all(_.map(photosets, function (photoset) {
           return callFlickr({
@@ -132,25 +132,21 @@ module.exports = {
       .then(function (photosets) {
         return Promise.all(_.map(photosets, function (photoset) {
           return Promise.all(_.map(photoset.photo, function (photo) {
-            var photoSizesPromise = callFlickr({
+            return callFlickr({
               method: 'flickr.photos.getSizes',
               photo_id: photo.id
-            });
-
-            photoSizesPromise.then(function (sizes) {
+            }).then(function (sizes) {
               return writeMemcache('photo-' + photo.id, {
                 title: photo.title,
                 full: _.find(sizes.sizes.size, function (size) { return size.label === 'Large 1600'; }).source,
                 album: '/api/album/' + photoset.id
+              }).then(function () {
+                return {
+                  title: photo.title,
+                  url: '/api/photos/' + photo.id,
+                  thumbnail: _.find(sizes.sizes.size, function (size) { return size.label === 'Large Square'; }).source
+                };
               });
-            });
-
-            return photoSizesPromise.then(function (sizes) {
-              return {
-                title: photo.title,
-                url: '/api/photos/' + photo.id,
-                thumbnail: _.find(sizes.sizes.size, function (size) { return size.label === 'Large Square'; }).source
-              };
             });
           })).then(function (photos) {
             return writeMemcache('album-' + photoset.id, {
@@ -160,5 +156,6 @@ module.exports = {
           });
         }));
       });
+    return Promise.all([albumListPromise, albumsAndPhotosPromise]);
   }
 };

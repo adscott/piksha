@@ -78,27 +78,35 @@ app.get('/api/', function (req, res) {
 app.get('/api/albums/', function (req, res) {
   media.readAlbums().then(function (albums) {
     res.send(albums);
+  }, function () {
+    res.status(404).send('');
   });
 });
 
 app.get('/api/albums/:albumId', function (req, res) {
   media.readAlbum(req.params.albumId).then(function (album) {
     res.send(album);
+  }, function () {
+    res.status(404).send('');
   });
 });
 
 app.get('/api/photos/:photoId', function (req, res) {
   media.readPhoto(req.params.photoId).then(function (photo) {
     res.send(photo);
+  }, function () {
+    res.status(404).send('');
   });
 });
 
-http.createServer(app).listen(config.httpPort);
-https.createServer({
-  key: fs.readFileSync(config.sslKey),
-  cert: fs.readFileSync(config.sslCert),
-  ca: fs.readFileSync(config.sslBundle)
-}, app).listen(config.httpsPort);
+
+media.fetchContent().then(function () {
+  http.createServer(app).listen(config.httpPort);
+  https.createServer({
+    key: fs.readFileSync(config.sslKey),
+    cert: fs.readFileSync(config.sslCert),
+    ca: fs.readFileSync(config.sslBundle)
+  }, app).listen(config.httpsPort);
+});
 
 setInterval(media.fetchContent, 24 * 60 * 60 * 1000);
-media.fetchContent();
