@@ -17,7 +17,26 @@ n('piksha.media', function (ns) {
         var previousIndex = (index - 1) < 0 ? photos.length - 1 : index - 1;
         var nextIndex = (index + 1) === photos.length ? 0 : index + 1;
         self.setState({previousUrl: photos[previousIndex].url, nextUrl: photos[nextIndex].url});
+        $(document).on('keydown', self.keyPressed);
       });
+    },
+    componentWillUnmount: function() {
+      $(document).off('keydown', self.keyPressed);
+    },
+    keyPressed: function (e) {
+      var codes = {
+        left: 37,
+        right: 39
+      };
+
+      var handlers = {
+        left: this.showPrevious,
+        right: this.showNext
+      };
+
+      if (_.contains(_.values(codes), e.keyCode)) {
+        handlers[_.findKey(codes, function (value) { return value === e.keyCode; })].call(this, e);
+      }
     },
     showAlbum: function (e) {
       e.preventDefault();
