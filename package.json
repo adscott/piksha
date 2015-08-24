@@ -24,6 +24,7 @@
     "express": "~4.13.3",
     "express-force-ssl": "^0.2.13",
     "jquery": "^2.1.4",
+    "limiter": "^1.0.5",
     "lodash": "^3.10.1",
     "memcached": "^2.1.0",
     "n-js": "^1.0.0",

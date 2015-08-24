@@ -3,6 +3,10 @@ var Memcached = require('memcached');
 var _ = require('lodash');
 var crypto = require('crypto');
 var needle = require('needle');
+var RateLimiter = require('limiter').RateLimiter;
+
+
+var limiter = new RateLimiter(1, 100);
 
 var config = require('/etc/piksha/config');
 
@@ -31,7 +35,9 @@ function queryString(parameters) {
   return pairs.join('&');
 }
 
-function callFlickr(opts) {
+function callFlickr(opts, retryCount) {
+  retryCount = retryCount || 0;
+
   var parameters = _.assign({
     oauth_nonce: generateNonce(),
     format: 'json',
@@ -49,13 +55,19 @@ function callFlickr(opts) {
   var oauthSignature = sign(signable, config.flickr.oauthClientSecret, config.flickr.oauthTokenSecret);
   var url = baseUrl + '?' + baseQueryString + '&oauth_signature=' + oauthSignature;
 
-  return new Promise(function (resolve, reject) {
-    needle.get(url, function (err, res) {
-      if (err) {
-        reject();
-      } else {
-        resolve(res.body);
-      }
+  return new Promise(function (resolve) {
+    limiter.removeTokens(1, function() {
+      needle.get(url, function (err, res) {
+        if (err) {
+          if (retryCount > 5) {
+            throw err;
+          } else {
+            callFlickr(opts, retryCount + 1).then(resolve);
+          }
+        } else {
+          resolve(res.body);
+        }
+      });
     });
   });
 }

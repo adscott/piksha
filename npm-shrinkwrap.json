@@ -375,6 +375,11 @@
       "from": "jquery@*",
       "resolved": "https://registry.npmjs.org/jquery/-/jquery-2.1.4.tgz"
     },
+    "limiter": {
+      "version": "1.0.5",
+      "from": "limiter@*",
+      "resolved": "https://registry.npmjs.org/limiter/-/limiter-1.0.5.tgz"
+    },
     "lodash": {
       "version": "3.10.1",
       "from": "lodash@*",
