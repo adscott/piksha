@@ -144,6 +144,7 @@ function saveAlbum(photoset) {
   return writeMemcache('album-' + photoset.id, {
     title: photoset.title,
     photos: photoset.photos.map(function (photo) { return {
+      title: photo.title,
       thumbnail: photo.thumbnail,
       url: '/api/photos/' + photo.id
     }; })
@@ -153,6 +154,7 @@ function saveAlbum(photoset) {
 function saveAlbumsList(photosets) {
   return writeMemcache('albums', _.map(photosets, function(photoset) {
     return {
+      title: photoset.title,
       thumbnail: _.find(photoset.photos, function (photo) {
         return photo.isprimary;
       }).thumbnail,
@@ -165,10 +167,12 @@ function savePhotosets(photosets) {
   var saveAlbumsListPromise = saveAlbumsList(photosets);
   var saveAlbumsPromises = _.map(photosets, saveAlbum);
   var savePhotosPromises = _.flatten(_.map(photosets, function (photoset) {
-    return _.map(photosets.photos, function (photo) {
+    return _.map(photoset.photos, function (photo) {
       return savePhoto(photo, photoset.id);
     });
   }));
+
+
 
   return Promise.all([saveAlbumsListPromise]
     .concat(saveAlbumsPromises)
