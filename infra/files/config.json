@@ -1,5 +1,5 @@
 {
-  "httpPort": 8080,
+  "httpPort": 8888,
   "httpsPort": 8443,
   "publicHttpsPort": 8443,
   "sslKey": "/etc/ssl/certs/server.key",
