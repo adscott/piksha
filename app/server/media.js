@@ -120,6 +120,72 @@ module.exports = {
         photo.id + '_' + photo.secret + '_' + suffix + '.jpg';
     }
 
+    function extractPhotosets(photosets) {
+      return _.map(photosets, extractPhotoset);
+    }
+
+    function extractPhotoset(photoset) {
+      return {
+        id: photoset.photoset.id,
+        title: photoset.photoset.title,
+        photos: _.map(photoset.photoset.photo, extractPhoto)
+      };
+    }
+
+    function extractPhoto(photo) {
+      return {
+        id: photo.id,
+        title: photo.title,
+        thumbnail: size(photo, 'q'),
+        full: size(photo, 'b'),
+        isprimary: !!photo.isprimary
+      };
+    }
+
+    function savePhoto(photo, photosetId) {
+      return writeMemcache('photo-' + photo.id, {
+        title: photo.title,
+        thumbnail: photo.thumbnail,
+        full: photo.full,
+        album: '/api/albums/' + photosetId
+      });
+    }
+
+    function saveAlbum(photoset) {
+      return writeMemcache('album-' + photoset.id, {
+        title: photoset.title,
+        photos: photoset.photos.map(function (photo) { return {
+          thumbnail: photo.thumbnail,
+          url: '/api/photos/' + photo.id
+        }; })
+      });
+    }
+
+    function saveAlbumsList(photosets) {
+      return writeMemcache('albums', _.map(photosets, function(photoset) {
+        return {
+          thumbnail: _.find(photoset.photos, function (photo) {
+            return photo.isprimary;
+          }).thumbnail,
+          url: '/api/albums/' + photoset.id
+        };
+      }));
+    }
+
+    function savePhotosets(photosets) {
+      var saveAlbumsListPromise = saveAlbumsList(photosets);
+      var saveAlbumsPromises = _.map(photosets, saveAlbum);
+      var savePhotosPromises = _.flatten(_.map(photosets, function (photoset) {
+        return _.map(photosets.photos, function (photo) {
+          return savePhoto(photo, photoset.id);
+        });
+      }));
+
+      return Promise.all([saveAlbumsListPromise]
+        .concat(saveAlbumsPromises)
+        .concat(savePhotosPromises));
+    }
+
     return callFlickr({method: 'flickr.photosets.getList'})
       .then(function (list) { return list.photosets.photoset; })
       .then(function (photosets) {
@@ -127,53 +193,10 @@ module.exports = {
           return callFlickr({
             method: 'flickr.photosets.getPhotos',
             photoset_id: photoset.id
-          }).then(function (photoset) {
-            return {
-              id: photoset.photoset.id,
-              title: photoset.photoset.title,
-              photos: _.map(photoset.photoset.photo, function (photo) {
-                return {
-                  id: photo.id,
-                  title: photo.title,
-                  thumbnail: size(photo, 'q'),
-                  full: size(photo, 'b'),
-                  isprimary: !!photo.isprimary
-                };
-              })
-            };
           });
         }));
       })
-      .then(function (photosets) {
-        return Promise.all(_.map(photosets, function (photoset) {
-          return Promise.all(_.map(photoset.photos, function (photo) {
-            return writeMemcache('photo-' + photo.id, {
-              title: photo.title,
-              thumbnail: photo.thumbnail,
-              full: photo.full,
-              album: '/api/albums/' + photoset.id
-            });
-          }))
-            .then(function () {
-              return writeMemcache('album-' + photoset.id, {
-                title: photoset.title,
-                photos: photoset.photos.map(function (photo) { return {
-                  thumbnail: photo.thumbnail,
-                  url: '/api/photos/' + photo.id
-                }; })
-              });
-            });
-        }))
-          .then(function () {
-            return writeMemcache('albums', _.map(photosets, function(photoset) {
-              return {
-                thumbnail: _.find(photoset.photos, function (photo) {
-                  return photo.isprimary;
-                }).thumbnail,
-                url: '/api/albums/' + photoset.id
-              };
-            }));
-          });
-      });
+      .then(extractPhotosets)
+      .then(savePhotosets);
   }
 };
