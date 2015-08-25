@@ -111,11 +111,16 @@ module.exports = {
     return readMemcache('photo-' + photoId);
   },
   fetchContent: function () {
-    var media = this;
+    function size(photo, suffix) {
+      return 'https://farm' +
+        photo.farm +
+        '.staticflickr.com/' +
+        photo.server +
+        '/' +
+        photo.id + '_' + photo.secret + '_' + suffix + '.jpg';
+    }
 
-    var getListPromise = callFlickr({method: 'flickr.photosets.getList'});
-
-    var getPhotosPromise = getListPromise
+    return callFlickr({method: 'flickr.photosets.getList'})
       .then(function (list) { return list.photosets.photoset; })
       .then(function (photosets) {
         return Promise.all(_.map(photosets, function (photoset) {
@@ -126,90 +131,48 @@ module.exports = {
             return {
               id: photoset.photoset.id,
               title: photoset.photoset.title,
-              primary: photoset.photoset.primary,
-              photos: _.map(photoset.photoset.photo, function (photo) { return {id: photo.id, title: photo.title}; })
+              photos: _.map(photoset.photoset.photo, function (photo) {
+                return {
+                  id: photo.id,
+                  title: photo.title,
+                  thumbnail: size(photo, 'q'),
+                  full: size(photo, 'b'),
+                  isprimary: !!photo.isprimary
+                };
+              })
             };
           });
         }));
-      });
-
-    var getSizesPromise = getPhotosPromise
+      })
       .then(function (photosets) {
         return Promise.all(_.map(photosets, function (photoset) {
           return Promise.all(_.map(photoset.photos, function (photo) {
-            return callFlickr({
-              method: 'flickr.photos.getSizes',
-              photo_id: photo.id
-            })
-              .then(function (sizes) { return sizes.sizes.size; })
-              .then(function (sizes) {
-                return {
-                  id: photo.id,
-                  full: _.find(sizes, function (size) { return size.label === 'Large 1600'; }).source,
-                  thumbnail: _.find(sizes, function (size) { return size.label === 'Large Square'; }).source
-                };
-              });
-          }));
-        }));
-      })
-      .then(function (photos) {
-        return _.flattenDeep(photos);
-      });
-
-    return getSizesPromise
-      .then(function (photos) {
-        return Promise.all(_.map(photos, function (photo) {
-          return getPhotosPromise
-            .then(function (photosets) {
-              var idMatch = function (p) { return p.id === photo.id; };
-              var photoset = _.find(photosets, function (ps) { return _.any(ps.photos, idMatch); });
-              return writeMemcache('photo-' + photo.id, {
-                full: photo.full,
-                thumbnail: photo.thumbnail,
-                title: _.find(photoset.photos, idMatch).title,
-                album: '/api/albumss/' + photoset.id
+            return writeMemcache('photo-' + photo.id, {
+              title: photo.title,
+              thumbnail: photo.thumbnail,
+              full: photo.full,
+              album: '/api/albums/' + photoset.id
+            });
+          }))
+            .then(function () {
+              return writeMemcache('album-' + photoset.id, {
+                title: photoset.title,
+                photos: photoset.photos.map(function (photo) { return {
+                  thumbnail: photo.thumbnail,
+                  url: '/api/photos/' + photo.id
+                }; })
               });
             });
-        }));
-      })
-      .then(function () {
-        return getPhotosPromise
-          .then(function (photosets) {
-            return Promise.all(_.map(photosets, function (photoset) {
-              return Promise.all(_.map(photoset.photos, function (photo) {
-                return media.readPhoto(photo.id).then(function (p) {
-                  return {
-                    url: '/api/photos/' + photo.id,
-                    title: photo.title,
-                    thumbnail: p.thumbnail
-                  };
-                });
-              }))
-              .then(function (photos) {
-                return writeMemcache('album-' + photoset.id, {
-                  photos: photos,
-                  title: photoset.title
-                });
-              });
+        }))
+          .then(function () {
+            return writeMemcache('albums', _.map(photosets, function(photoset) {
+              return {
+                thumbnail: _.find(photoset.photos, function (photo) {
+                  return photo.isprimary;
+                }).thumbnail,
+                url: '/api/albums/' + photoset.id
+              };
             }));
-          });
-      })
-      .then(function () {
-        return getPhotosPromise
-          .then(function (photosets) {
-            return Promise.all(_.map(photosets, function (photoset) {
-              return media.readPhoto(photoset.primary)
-                .then(function (photo) {
-                  return {
-                    url: '/api/albums/' + photoset.id,
-                    title: photoset.title,
-                    thumbnail: photo.thumbnail
-                  };
-                });
-            }));
-          })
-          .then(function (albums) {
-            return writeMemcache('albums', albums);
           });
       });
   }
