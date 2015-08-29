@@ -5,7 +5,6 @@ describe('media', function () {
 
   var cache, flickrResponses;
 
-  var configStub = require('../../infra/files/config');
   var memcachedStub = function () {
     this.set = function (key, value, timeout, callback) {
       cache[key] = value;
@@ -33,7 +32,6 @@ describe('media', function () {
   };
 
   var media = proxyquire('../../app/server/media', {
-    config: configStub,
     memcached: memcachedStub,
     needle: needleStub,
     limiter: limiterStub

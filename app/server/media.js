@@ -8,7 +8,16 @@ var RateLimiter = require('limiter').RateLimiter;
 
 var limiter = new RateLimiter(1, 100);
 
-var config = require('/etc/piksha/config');
+var config;
+
+try {
+  config = require('/etc/piksha/config');
+} catch(e) {
+  config = {
+    flickr: {},
+    memcached: {}
+  };
+}
 
 var memcached = new Memcached(config.memcached.host + ':' + config.memcached.port);
 
