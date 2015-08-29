@@ -152,7 +152,7 @@ function saveAlbum(photoset) {
 }
 
 function saveAlbumsList(photosets) {
-  return writeMemcache('albums', _.map(photosets, function(photoset) {
+  var albums = _.map(photosets, function(photoset) {
     return {
       title: photoset.title,
       thumbnail: _.find(photoset.photos, function (photo) {
@@ -160,7 +160,8 @@ function saveAlbumsList(photosets) {
       }).thumbnail,
       url: '/api/albums/' + photoset.id
     };
-  }));
+  });
+  return writeMemcache('albums', _.sortBy(albums, 'title'));
 }
 
 function savePhotosets(photosets) {
