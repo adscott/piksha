@@ -1,6 +1,6 @@
 var _ = require('lodash');
 var crypto = require('crypto');
-var config = require('/etc/piksha/config');
+var config = require('./config');
 
 var hashes = _.reduce(config.users, function (hashes, user) {
   var key = crypto.createHmac('SHA256', config.secret).update(user).digest('base64');

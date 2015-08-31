@@ -3,7 +3,7 @@ var _ = require('lodash');
 
 describe('media', function () {
 
-  var cache, flickrResponses;
+  var cache, flickrResponses, media;
 
   var memcachedStub = function () {
     this.set = function (key, value, timeout, callback) {
@@ -30,12 +30,6 @@ describe('media', function () {
       };
     }
   };
-
-  var media = proxyquire('../../app/server/media', {
-    memcached: memcachedStub,
-    needle: needleStub,
-    limiter: limiterStub
-  });
 
   beforeEach(function () {
     cache = {};
@@ -84,6 +78,14 @@ describe('media', function () {
         };
       }
     };
+
+    process.env.PIKSHA_CONFIG = 'infra/files/config';
+
+    media = proxyquire('../../app/server/media', {
+      memcached: memcachedStub,
+      needle: needleStub,
+      limiter: limiterStub
+    });
   });
 
   describe('after fetching content', function () {
