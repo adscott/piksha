@@ -11,7 +11,7 @@ n('piksha.media', function (ns) {
   }
 
   function createError () {
-    return {text: 'error', visible: false};
+    return {visible: false};
   }
 
   function createAttribute(name) {
@@ -23,9 +23,9 @@ n('piksha.media', function (ns) {
       return {attributes: [], attributeSelected: piksha.shared.attributeDefinitions[0].name, error: createError()};
     },
     clearErrors: function () {
-      this.setState({error: _.assign(this.state.error, {visible: false})});
+      this.setState({error: {visible: false}});
       this.setState({attributes: _.map(this.state.attributes, function (a) {
-        return _.assign(a, {error: _.assign(a.error, {visible: false})});
+        return _.assign(a, {error: {visible: false}});
       })});
     },
     addAttribute: function (event) {
