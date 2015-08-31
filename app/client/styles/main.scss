@@ -164,7 +164,8 @@ form {
         display: block;
 
         &.error {
-          @include span-columns(6 of 6);
+          @include span-columns(3 of 6);
+          @include shift(2);
           @include omega();
         }
       }
