@@ -62,6 +62,7 @@ n('piksha.media', function (ns) {
               <img src={this.state.photo.full} />
             </div>
             <h3 className="caption">{this.state.photo.title}</h3>
+            <piksha.media.Attributes photo={this.state.photo} />
           </div>;
       } else {
         return <piksha.application.Loading />;

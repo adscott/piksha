@@ -5,6 +5,7 @@ $max-width: 1200px;
 $gutter: 100px;
 $copy-color: #424242;
 $link-color: #105289;
+$error-color: #BB0000;
 $bg-color: #E0E0E0;
 $ui-bg-color: darken($bg-color, 10);
 $border-color: darken($bg-color, 20);
@@ -15,6 +16,12 @@ body {
   color: $copy-color;
   font-size: 120%;
   font-family: 'PT Sans', Helvetica, Arial, sans-serif;
+}
+
+fieldset, ul {
+  margin: 0;
+  padding: 0;
+  border: none;
 }
 
 a {
@@ -91,4 +98,85 @@ nav {
     from { opacity: 0; }
     to   { opacity: 1; }
   }
+}
+
+form {
+  @include span-columns(12);
+
+  fieldset {
+    @include span-columns(6 of 12);
+    &:nth-of-type(2n) {
+      @include omega();
+    }
+  }
+
+  label.error {
+    opacity: 0;
+    transition: all 1s ease;
+    text-align: center;
+    color: $error-color;
+    font-size: 80%;
+    &.present {
+      opacity: 1;
+    }
+  }
+
+
+  .controls {
+    button, select, label {
+      @include shift(2 of 6);
+      @include span-columns(2 of 6);
+      @include omega();
+      margin-bottom: $gutter/4;
+    }
+
+    button {
+      border-radius: $border-radius;
+      cursor: pointer;
+    }
+
+    select, button {
+      background-color: $ui-bg-color;
+      outline: none;
+      text-align: center;
+      border: none;
+      padding: $gutter / 8;
+    }
+  }
+
+
+  .attributes {
+    ul {
+      @include span-columns(6 of 6);
+      @include omega();
+    }
+
+    li {
+      @include span-columns(6 of 6);
+      @include omega();
+      list-style-type: none;
+
+      margin-bottom: $gutter/8;
+
+      label {
+        @include span-columns(2 of 6);
+        text-align: right;
+        display: block;
+
+        &.error {
+          @include span-columns(6 of 6);
+          @include omega();
+        }
+      }
+
+      input {
+        @include span-columns(4 of 6);
+        @include omega();
+        display: block;
+        outline-color: darken($ui-bg-color, 10);
+      }
+    }
+  }
+
+
 }

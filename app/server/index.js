@@ -14,6 +14,7 @@ var media = require('./media');
 
 var config = require('./config');
 var clientDir = path.join(__dirname, '../client');
+var sharedDir = path.join(__dirname, '../shared');
 
 var app = express();
 
@@ -28,6 +29,7 @@ app.use('/lodash', express.static(path.join(__dirname, '../../node_modules/lodas
 app.use('/jquery', express.static(path.join(__dirname, '../../node_modules/jquery/dist/')));
 app.use('/react', express.static(path.join(__dirname, '../../node_modules/react/dist/')));
 app.use('/client', express.static(path.join(clientDir)));
+app.use('/shared', express.static(path.join(sharedDir)));
 
 app.get('/', function (req, res) {
   res.sendFile(path.join(clientDir, 'index.html'));
