@@ -16,6 +16,12 @@ n('piksha.media', function (ns) {
     getInitialState: function () {
       return {attributes: [], attributeSelected: piksha.shared.attributeDefinitions[0].name, error: createError()};
     },
+    clearErrors: function () {
+      this.setState({error: _.assign(this.state.error, {visible: false})});
+      this.setState({attributes: _.map(this.state.attributes, function (a) {
+        return _.assign(a, {error: _.assign(a.error, {visible: false})});
+      })});
+    },
     addAttribute: function (event) {
       event.preventDefault();
 
@@ -30,17 +36,17 @@ n('piksha.media', function (ns) {
       }
     },
     attributeSelected: function (event) {
+      event.preventDefault();
+      this.clearErrors();
       this.setState({attributeSelected: event.target.value});
     },
     save: function (event) {
       event.preventDefault();
+      this.clearErrors();
+
       var attributes = _.map(this.state.attributes, function (a) {
         var definition = _.find(piksha.shared.attributeDefinitions, generateNameMatcher(a.name));
-        if (definition.valid(a.value)) {
-          return _.assign(a, {error: _.assign(a.error, {visible: false})});
-        } else {
-          return _.assign(a, {error: {visible: true, text: definition.error(a.value)}});
-        }
+        return definition.valid(a.value) ? a : _.assign(a, {error: {visible: true, text: definition.error(a.value)}});
       });
 
       this.setState({attributes: attributes});
@@ -85,7 +91,7 @@ n('piksha.media', function (ns) {
 
   ns.AttributeError = React.createClass({
     getInitialState: function () {
-      return {className: this.props.visible ? 'error present' : 'error'};
+      return {className: 'error'};
     },
     componentWillReceiveProps: function (nextProps) {
       var self = this;
