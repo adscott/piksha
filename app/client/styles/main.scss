@@ -170,10 +170,16 @@ form {
       }
 
       input {
-        @include span-columns(4 of 6);
-        @include omega();
+        @include span-columns(3 of 6);
         display: block;
         outline-color: darken($ui-bg-color, 10);
+      }
+
+      a {
+        @include span-columns(1 of 6);
+        @include omega();
+        font-size: 60%;
+        display: block;
       }
     }
   }

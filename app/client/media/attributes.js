@@ -1,5 +1,11 @@
 n('piksha.media', function (ns) {
 
+  var sequence = 1;
+
+  function newId() {
+    return sequence++;
+  }
+
   function generateNameMatcher (name) {
     return function (a) { return a.name === name; };
   }
@@ -9,7 +15,7 @@ n('piksha.media', function (ns) {
   }
 
   function createAttribute(name) {
-    return {name: name, error: createError()};
+    return {name: name, error: createError(), id: newId()};
   }
 
   ns.Attributes = React.createClass({
@@ -52,10 +58,23 @@ n('piksha.media', function (ns) {
       this.setState({attributes: attributes});
     },
     render: function () {
+      var self = this;
+
       var attributes = _.map(this.state.attributes, function (a) {
-        var updateAttribute = function (event) { a.value = event.target.value; };
-        return <ns.Attribute attribute={a} updateAttribute={updateAttribute} />;
-      }, this);
+        var updateAttribute = function (event) {
+          event.preventDefault();
+          self.clearErrors();
+          self.setState({attributes: _.map(self.state.attributes, function (oldA) {
+            return oldA.id === a.id ? _.assign(oldA, {value: event.target.value}) : oldA;
+          })});
+        };
+        var removeAttribute = function (event) {
+          event.preventDefault();
+          self.clearErrors();
+          self.setState({attributes: _.reject(self.state.attributes, function (oldA) { return a.id === oldA.id; })});
+        };
+        return <ns.Attribute attribute={a} updateAttribute={updateAttribute} removeAttribute={removeAttribute} />;
+      });
 
       var attributeNames = _.map(piksha.shared.attributeDefinitions, function (d) {
         return <option value={d.name}>{_.capitalize(d.name)}</option>;
@@ -83,7 +102,8 @@ n('piksha.media', function (ns) {
     render: function () {
       return <li className="attribute">
           <label>{_.capitalize(this.props.attribute.name)}</label>
-          <input type="text" onChange={this.props.updateAttribute} />
+          <input type="text" onChange={this.props.updateAttribute} value={this.props.attribute.value} />
+          <a href="#" onClick={this.props.removeAttribute}>Remove</a>
           <ns.AttributeError visible={this.props.attribute.error.visible} errorText={this.props.attribute.error.text} />
         </li>;
     }
