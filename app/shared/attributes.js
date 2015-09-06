@@ -37,6 +37,9 @@ n('piksha.shared', function (ns) {
     {
       name: 'event',
       unique: true
+    },
+    {
+      name: 'subject'
     }
   ], function (defintion) {
     return _.assign(defintion, {
