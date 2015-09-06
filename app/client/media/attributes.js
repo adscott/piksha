@@ -6,10 +6,6 @@ n('piksha.media', function (ns) {
     return sequence++;
   }
 
-  function generateNameMatcher (name) {
-    return function (a) { return a.name === name; };
-  }
-
   function createError () {
     return {visible: false};
   }
@@ -31,9 +27,8 @@ n('piksha.media', function (ns) {
     addAttribute: function (event) {
       event.preventDefault();
 
-      var selectedNameMatcher = generateNameMatcher(this.state.attributeSelected);
-      var shouldBeUnique = _.find(piksha.shared.attributeDefinitions, selectedNameMatcher).unique;
-      var available = !shouldBeUnique || !_.any(this.state.attributes, selectedNameMatcher);
+      var shouldBeUnique = piksha.shared.attributeDefinitionByName(this.state.attributeSelected).unique;
+      var available = !shouldBeUnique || !_.any(this.state.attributes, function (a) { return a.name === this.state.attributeSelected; }, this);
 
       if (available) {
         this.setState({attributes:  this.state.attributes.concat(createAttribute(this.state.attributeSelected))});
@@ -49,13 +44,7 @@ n('piksha.media', function (ns) {
     save: function (event) {
       event.preventDefault();
       this.clearErrors();
-
-      var attributes = _.map(this.state.attributes, function (a) {
-        var definition = _.find(piksha.shared.attributeDefinitions, generateNameMatcher(a.name));
-        return definition.valid(a.value) ? a : _.assign(a, {error: {visible: true, text: definition.error(a.value)}});
-      });
-
-      this.setState({attributes: attributes});
+      this.setState({attributes: piksha.shared.attributeErrors(this.state.attributes)});
     },
     render: function () {
       var self = this;

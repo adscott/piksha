@@ -48,4 +48,15 @@ n('piksha.shared', function (ns) {
       }
     });
   });
+
+  ns.attributeDefinitionByName = function (name) {
+    return _.find(ns.attributeDefinitions, function (a) { return name === a.name; });
+  };
+
+  ns.attributeErrors = function (attributes) {
+    return _.map(attributes, function (a) {
+      var definition = ns.attributeDefinitionByName(a.name);
+      return definition.valid(a.value) ? a : _.assign(a, {error: {visible: true, text: definition.error(a.value)}});
+    });
+  };
 });
