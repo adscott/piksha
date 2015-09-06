@@ -38,12 +38,7 @@ n('piksha.media', function (ns) {
       });
     },
     render: function () {
-      return <li className="thumbnail">
-        <a href="#" onClick={this.showPhoto}>
-          <ns.Thumbnail src={this.props.photo.thumbnail} />
-          <span>{this.props.photo.title}</span>
-        </a>
-      </li>;
+      return <ns.Thumbnail src={this.props.photo.thumbnail} clickHandler={this.showPhoto} title={this.props.photo.title} />;
     }
   });
 });

@@ -21,12 +21,7 @@ n('piksha.media', function (ns) {
       piksha.application.Router.instance().changeRoute('album', {albumUrl: this.props.album.url});
     },
     render: function () {
-      return <li className="thumbnail">
-        <a href="#" onClick={this.albumChosen}>
-          <ns.Thumbnail src={this.props.album.thumbnail} />
-          <span>{this.props.album.title}</span>
-        </a>
-      </li>;
+      return <ns.Thumbnail src={this.props.album.thumbnail} clickHandler={this.albumChosen} title={this.props.album.title} />;
     }
   });
 });

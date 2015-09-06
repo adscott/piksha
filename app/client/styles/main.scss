@@ -2,7 +2,7 @@
 @import 'neat';
 
 $max-width: 1200px;
-$gutter: 100px;
+$gutter: 128px;
 $line-height: 2.5ex;
 $copy-color: #424242;
 $link-color: #105289;
@@ -11,6 +11,16 @@ $bg-color: #E0E0E0;
 $ui-bg-color: darken($bg-color, 10);
 $border-color: darken($bg-color, 20);
 $border-radius: 20px;
+
+$image-bg-color: darken($ui-bg-color, 30);
+$image-border-thickness: $gutter/16;
+$image-border-color: darken($image-bg-color, 10);
+$image-border: $image-border-thickness $image-border-color solid;
+
+$image-max: 1024px + $gutter;
+$image-frame: $image-max + ($image-border-thickness * 2);
+$thumbnail-max: 150px;
+$thumbnail-frame: $thumbnail-max + ($image-border-thickness * 2);
 
 body {
   background-color: $bg-color;
@@ -66,14 +76,29 @@ nav {
   }
 }
 
+.frame {
+  margin: 0 auto;
+  background-color: darken($ui-bg-color, 30);
+  border: $image-border;
+  overflow: hidden;
+
+  img, .loading {
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
+  }
+}
+
 .main, .caption {
   @include span-columns(12);
   @include omega();
   display: block;
   text-align: center;
 
-  img {
-    max-height: $max-width * 0.75;
+  .frame {
+    height: $image-frame;
+    width: $image-frame;
+    line-height: $image-max;
   }
 }
 
@@ -86,20 +111,33 @@ nav {
   display: inline-block;
   height: 250px;
   overflow: hidden;
+  text-align: center;
 
-  img {
-    height: 150px;
-    width: 150px;
+  .frame {
+    height: $thumbnail-frame;
+    width: $thumbnail-frame;
+    line-height: $thumbnail-max;
   }
+}
 
-  .loaded {
-    animation: fadein 2s;
-  }
+@-webkit-keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
-  @keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-  }
+@-moz-keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.loaded {
+  @include animation-name(fadein);
+  @include animation-duration(2s);
 }
 
 form {
@@ -187,6 +225,35 @@ form {
       }
     }
   }
+}
 
 
+$spinner-color: $copy-color;
+$spinner-size: $gutter;
+$spinner-speed: 0.75s;
+$spinner-thickness: 8px;
+
+@mixin rotate-forever {
+  0% {
+    @include transform(rotate(0deg));
+  }
+  100% {
+    @include transform(rotate(360deg));
+  }
+}
+
+@-webkit-keyframes rotate-forever { @include rotate-forever; }
+@-moz-keyframes rotate-forever { @include rotate-forever; }
+@keyframes rotate-forever { @include rotate-forever; }
+
+.spinner {
+  @include animation-duration($spinner-speed);
+  @include animation-iteration-count(infinite);
+  @include animation-name(rotate-forever);
+  @include animation-timing-function(linear);
+  height: $spinner-size;
+  width: $spinner-size;
+  border: $spinner-thickness solid $spinner-color;
+  border-right-color: transparent;
+  border-radius: 50%;
 }

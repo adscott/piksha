@@ -7,9 +7,7 @@ n('piksha.media', function (ns) {
       var self = this;
       var mediaService = piksha.media.MediaService.create();
 
-      mediaService.asset(this.props.photoUrl).then(function (photo) {
-        self.setState({photo: photo});
-      });
+      mediaService.asset(this.props.photoUrl).then(function (photo) { self.setState({photo: photo}); });
 
       mediaService.asset(this.props.albumUrl).then(function (album) {
         var photos = album.photos;
@@ -59,7 +57,9 @@ n('piksha.media', function (ns) {
               <a href="#" onClick={this.showNext}>Next</a>
             </nav>
             <div className="main">
-              <img src={this.state.photo.full} />
+              <div className="frame">
+                <ns.Image url={this.state.photo.full} />
+              </div>
             </div>
             <h3 className="caption">{this.state.photo.title}</h3>
             <piksha.media.Attributes photo={this.state.photo} />
