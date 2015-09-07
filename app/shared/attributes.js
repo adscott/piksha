@@ -7,17 +7,26 @@ if (!_) {
 }
 
 n('piksha.shared', function (ns) {
-  var definitions = _.map([
+  var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  var definitions = [
     {
       name: 'person'
     },
     {
       name: 'month',
       error: function (value) {
-        var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         return _.contains(months, value) ? '' : 'Input a month, e.g. January';
       },
-      unique: true
+      groupError: function (values) {
+        if (values.length > 0 && _.all(values, function (value) { return _.contains(months, value); })) {
+          var sortedValues = _.sortBy(values, function (value) { return _.indexOf(months, value); });
+          var index = _.indexOf(months, sortedValues[0]);
+          return _.eq(_.slice(months, index, sortedValues.length + index), sortedValues) ? '' : 'Months must be contiguous.';
+        } else {
+          return '';
+        }
+      }
     },
     {
       name: 'year',
@@ -41,13 +50,7 @@ n('piksha.shared', function (ns) {
     {
       name: 'subject'
     }
-  ], function (defintion) {
-    return _.assign(defintion, {
-      valid: function (value) {
-        return !this.error || !this.error(value);
-      }
-    });
-  });
+  ];
 
 
   ns.AttributesService = {
@@ -62,9 +65,16 @@ n('piksha.shared', function (ns) {
         errors: function (attributes) {
           return _.reduce(attributes, function (errors, attribute) {
             var definition = this.definitionByName(attribute.name);
-            if (!definition.valid(attribute.value)) {
+            var groupValues = _(attributes).filter(function (a) { return attribute.name === a.name; }).pluck('value').value();
+
+            if (definition.groupError && definition.groupError(groupValues)) {
+              errors[attribute.id] = definition.groupError(groupValues);
+            }
+
+            if (definition.error && definition.error(attribute.value)) {
               errors[attribute.id] = definition.error(attribute.value);
             }
+
             return errors;
           }, {}, this);
         }
