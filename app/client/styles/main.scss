@@ -89,6 +89,20 @@ nav {
   }
 }
 
+.routing {
+  @include span-columns(12);
+  @include omega();
+  text-align: center;
+  height: 80vh;
+  line-height: 80vh;
+
+  .loading {
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
+  }
+}
+
 .main, .caption {
   @include span-columns(12);
   @include omega();
