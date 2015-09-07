@@ -1,6 +1,7 @@
 n('piksha.media', function (ns) {
 
   var sequence = 1;
+  var attributesService = piksha.shared.AttributesService.create();
 
   function newId() {
     return sequence++;
@@ -16,7 +17,7 @@ n('piksha.media', function (ns) {
 
   ns.Attributes = React.createClass({
     getInitialState: function () {
-      return {attributes: [], attributeSelected: piksha.shared.attributeDefinitions[0].name, error: createError()};
+      return {attributes: [], attributeSelected: attributesService.definitions()[0].name, error: createError()};
     },
     clearErrors: function () {
       this.setState({error: {visible: false}});
@@ -27,7 +28,7 @@ n('piksha.media', function (ns) {
     addAttribute: function (event) {
       event.preventDefault();
 
-      var shouldBeUnique = piksha.shared.attributeDefinitionByName(this.state.attributeSelected).unique;
+      var shouldBeUnique = attributesService.definitionByName(this.state.attributeSelected).unique;
       var available = !shouldBeUnique || !_.any(this.state.attributes, function (a) { return a.name === this.state.attributeSelected; }, this);
 
       if (available) {
@@ -44,7 +45,7 @@ n('piksha.media', function (ns) {
     save: function (event) {
       event.preventDefault();
       this.clearErrors();
-      this.setState({attributes: piksha.shared.attributeErrors(this.state.attributes)});
+      this.setState({attributes: attributesService.errors(this.state.attributes)});
     },
     render: function () {
       var self = this;
@@ -65,7 +66,7 @@ n('piksha.media', function (ns) {
         return <ns.Attribute attribute={a} updateAttribute={updateAttribute} removeAttribute={removeAttribute} />;
       });
 
-      var attributeNames = _.map(piksha.shared.attributeDefinitions, function (d) {
+      var attributeNames = _.map(attributesService.definitions(), function (d) {
         return <option value={d.name}>{_.capitalize(d.name)}</option>;
       });
 

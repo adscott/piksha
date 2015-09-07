@@ -7,7 +7,7 @@ if (!_) {
 }
 
 n('piksha.shared', function (ns) {
-  ns.attributeDefinitions = _.map([
+  var definitions = _.map([
     {
       name: 'person'
     },
@@ -49,14 +49,23 @@ n('piksha.shared', function (ns) {
     });
   });
 
-  ns.attributeDefinitionByName = function (name) {
-    return _.find(ns.attributeDefinitions, function (a) { return name === a.name; });
-  };
 
-  ns.attributeErrors = function (attributes) {
-    return _.map(attributes, function (a) {
-      var definition = ns.attributeDefinitionByName(a.name);
-      return definition.valid(a.value) ? a : _.assign(a, {error: {visible: true, text: definition.error(a.value)}});
-    });
+  ns.AttributesService = {
+    create: function () {
+      return {
+        definitions: function () {
+          return definitions;
+        },
+        definitionByName: function (name) {
+          return _.find(definitions, function (a) { return name === a.name; });
+        },
+        errors: function (attributes) {
+          return _.map(attributes, function (a) {
+            var definition = this.definitionByName(a.name);
+            return definition.valid(a.value) ? a : _.assign(a, {error: {visible: true, text: definition.error(a.value)}});
+          }, this);
+        }
+      };
+    }
   };
 });
