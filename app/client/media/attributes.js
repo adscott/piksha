@@ -1,10 +1,15 @@
 n('piksha.media', function (ns) {
 
-  var sequence = 1;
   var attributesService = piksha.shared.AttributesService.create();
 
-  function newId() {
-    return sequence++;
+  function generateUUID() {
+    var d = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = (d + Math.random() * 16) % 16 | 0;
+      d = Math.floor(d / 16);
+      return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+    return uuid;
   }
 
   function createError () {
@@ -12,7 +17,7 @@ n('piksha.media', function (ns) {
   }
 
   function createAttribute(name) {
-    return {name: name, error: createError(), id: newId()};
+    return {name: name, error: createError(), id: generateUUID()};
   }
 
   ns.Attributes = React.createClass({
@@ -44,8 +49,15 @@ n('piksha.media', function (ns) {
     },
     save: function (event) {
       event.preventDefault();
+
       this.clearErrors();
-      this.setState({attributes: attributesService.errors(this.state.attributes)});
+
+      var errors = attributesService.errors(this.state.attributes);
+      var attributesWithErrors = _.map(this.state.attributes, function (a) {
+        return _.contains(_.keys(errors), a.id) ? _.assign(a, {error: {visible: true, text: errors[a.id]}}) : a;
+      });
+
+      this.setState({attributes: attributesWithErrors});
     },
     render: function () {
       var self = this;

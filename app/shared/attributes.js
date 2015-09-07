@@ -3,7 +3,7 @@ if (!n) {
 }
 
 if (!_) {
-  var _ = require('_');
+  var _ = require('lodash');
 }
 
 n('piksha.shared', function (ns) {
@@ -60,10 +60,13 @@ n('piksha.shared', function (ns) {
           return _.find(definitions, function (a) { return name === a.name; });
         },
         errors: function (attributes) {
-          return _.map(attributes, function (a) {
-            var definition = this.definitionByName(a.name);
-            return definition.valid(a.value) ? a : _.assign(a, {error: {visible: true, text: definition.error(a.value)}});
-          }, this);
+          return _.reduce(attributes, function (errors, attribute) {
+            var definition = this.definitionByName(attribute.name);
+            if (!definition.valid(attribute.value)) {
+              errors[attribute.id] = definition.error(attribute.value);
+            }
+            return errors;
+          }, {}, this);
         }
       };
     }
