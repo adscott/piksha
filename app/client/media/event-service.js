@@ -9,7 +9,7 @@ n('piksha.media', function (ns) {
               asset: photoUrl,
               data: _.map(attributes, function (a) {
                 return {
-                  value: a.value,
+                  value: _.trim(a.value),
                   name: a.name
                 };
               })

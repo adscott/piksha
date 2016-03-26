@@ -62,6 +62,7 @@ n('piksha.media', function (ns) {
       if (_.isEmpty(errors)) {
         eventService.saveAttributes(self.props.photoUrl, self.state.attributes).then(function () {
           var savedAttributes = _.map(self.state.attributes, function (a) {
+            a.value = _.trim(a.value);
             a.saved = true;
             return a;
           });
