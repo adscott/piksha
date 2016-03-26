@@ -1,6 +1,7 @@
 n('piksha.media', function (ns) {
 
   var attributesService = piksha.shared.AttributesService.create();
+  var eventService = piksha.media.EventService.create();
 
   function generateUUID() {
     var d = new Date().getTime();
@@ -17,7 +18,7 @@ n('piksha.media', function (ns) {
   }
 
   function createAttribute(name) {
-    return {name: name, error: createError(), id: generateUUID()};
+    return {name: name, error: createError(), id: generateUUID(), saved: false};
   }
 
   ns.Attributes = React.createClass({
@@ -49,33 +50,51 @@ n('piksha.media', function (ns) {
     },
     save: function (event) {
       event.preventDefault();
+      var self = this;
 
-      this.clearErrors();
+      self.clearErrors();
 
-      var errors = attributesService.errors(this.state.attributes);
-      var attributesWithErrors = _.map(this.state.attributes, function (a) {
+      var errors = attributesService.errors(self.state.attributes);
+      var attributesWithErrors = _.map(self.state.attributes, function (a) {
         return _.contains(_.keys(errors), a.id) ? _.assign(a, {error: {visible: true, text: errors[a.id]}}) : a;
       });
 
-      this.setState({attributes: attributesWithErrors});
+      self.setState({attributes: attributesWithErrors});
+
+      if (_.isEmpty(errors)) {
+        eventService.saveAttributes(self.state.attributes).then(function () {
+          var savedAttributes = _.map(self.state.attributes, function (a) {
+            a.saved = true;
+            return a;
+          });
+          self.setState({attributes: savedAttributes});
+        });
+      }
     },
     render: function () {
       var self = this;
 
       var attributes = _.map(this.state.attributes, function (a) {
-        var updateAttribute = function (event) {
-          event.preventDefault();
+        var assign = function (value) {
           self.clearErrors();
           self.setState({attributes: _.map(self.state.attributes, function (oldA) {
-            return oldA.id === a.id ? _.assign(oldA, {value: event.target.value}) : oldA;
+            return oldA.id === a.id ? _.assign(oldA, value) : oldA;
           })});
+        };
+        var updateAttribute = function (event) {
+          event.preventDefault();
+          assign({value: event.target.value});
         };
         var removeAttribute = function (event) {
           event.preventDefault();
           self.clearErrors();
           self.setState({attributes: _.reject(self.state.attributes, function (oldA) { return a.id === oldA.id; })});
         };
-        return <ns.Attribute attribute={a} updateAttribute={updateAttribute} removeAttribute={removeAttribute} />;
+        var editAttribute = function (event) {
+          event.preventDefault();
+          assign({saved: false});
+        };
+        return <ns.Attribute attribute={a} updateAttribute={updateAttribute} removeAttribute={removeAttribute} editAttribute={editAttribute} />;
       });
 
       var attributeNames = _.map(attributesService.definitions(), function (d) {
@@ -102,10 +121,11 @@ n('piksha.media', function (ns) {
 
   ns.Attribute = React.createClass({
     render: function () {
+      var editButtonClass = this.props.attribute.saved ? '' : 'disabled';
       return <li className="attribute">
           <label>{_.capitalize(this.props.attribute.name)}</label>
-          <input type="text" onChange={this.props.updateAttribute} value={this.props.attribute.value} />
-          <a href="#" onClick={this.props.removeAttribute}>Remove</a>
+          <input type="text" onChange={this.props.updateAttribute} value={this.props.attribute.value} readOnly={this.props.attribute.saved} />
+          <p><a href="#" onClick={this.props.editAttribute} className={editButtonClass}>Edit</a> | <a href="#" onClick={this.props.removeAttribute}>Remove</a></p>
           <ns.AttributeError visible={this.props.attribute.error.visible} errorText={this.props.attribute.error.text} />
         </li>;
     }

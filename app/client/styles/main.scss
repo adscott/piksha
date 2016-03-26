@@ -43,6 +43,11 @@ a {
   &:hover {
     color: darken($link-color, 5);
   }
+
+  &.disabled {
+    color: $copy-color;
+    cursor: default;
+  }
 }
 
 #container {
@@ -229,11 +234,16 @@ form {
         @include span-columns(3 of 6);
         display: block;
         outline-color: darken($ui-bg-color, 10);
+        &:read-only {
+          background: none;
+        }
       }
 
-      a {
+      p {
         @include span-columns(1 of 6);
         @include omega();
+        padding: 0;
+        margin: 0;
         font-size: 60%;
         display: block;
       }
