@@ -27,6 +27,7 @@
     "limiter": "^1.0.5",
     "lodash": "^3.10.1",
     "memcached": "^2.1.0",
+    "mongodb": "^2.1.11",
     "n-js": "^1.0.0",
     "needle": "^0.10.0",
     "node-neat": "^1.7.2",

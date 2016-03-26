@@ -17,5 +17,8 @@
     "oauthTokenSecret": "tokensecret123",
     "oauthClientKey": "clientkey123",
     "oauthClientSecret": "clientsecret123"
+  },
+  "mongodb": {
+    "url": "mongodb://localhost:27017/piksha"
   }
 }

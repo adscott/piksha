@@ -23,7 +23,10 @@ n('piksha.media', function (ns) {
 
   ns.Attributes = React.createClass({
     getInitialState: function () {
-      return {attributes: [], attributeSelected: attributesService.definitions()[0].name, error: createError()};
+      var savedAttributes = _.map(this.props.attributes, function (a) {
+        return _.assign(a, {error: createError(), id: generateUUID(), saved: true});
+      });
+      return {attributes: savedAttributes, attributeSelected: attributesService.definitions()[0].name, error: createError()};
     },
     clearErrors: function () {
       this.setState({error: {visible: false}});

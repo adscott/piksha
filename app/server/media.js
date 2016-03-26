@@ -5,7 +5,7 @@ var crypto = require('crypto');
 var needle = require('needle');
 var RateLimiter = require('limiter').RateLimiter;
 
-
+var event = require('./event-read');
 var config = require('./config');
 var limiter = new RateLimiter(1, 100);
 var memcached = new Memcached(config.memcached.host + ':' + config.memcached.port);
@@ -129,12 +129,25 @@ function extractPhoto(photo) {
   };
 }
 
+function photoUrl(photoId) {
+  return '/api/photos/' + photoId;
+}
+
+function decoratePhoto(photo, photoUrl) {
+  return event.retrieve(photoUrl).then(function (events) {
+    return events.length > 0 ? _.assign(photo, {attributes: events[0].data}) : photo;
+  });
+}
+
 function savePhoto(photo, photosetId) {
-  return writeMemcache('photo-' + photo.id, {
+  var cacheable = {
     title: photo.title,
     thumbnail: photo.thumbnail,
     full: photo.full,
     album: '/api/albums/' + photosetId
+  };
+  return decoratePhoto(cacheable, photoUrl(photo.id)).then(function (decoratedPhoto) {
+    return writeMemcache('photo-' + photo.id, decoratedPhoto);
   });
 }
 
@@ -171,8 +184,6 @@ function savePhotosets(photosets) {
     });
   }));
 
-
-
   return Promise.all([saveAlbumsListPromise]
     .concat(saveAlbumsPromises)
     .concat(savePhotosPromises));
@@ -187,6 +198,15 @@ module.exports = {
   },
   readPhoto: function (photoId) {
     return readMemcache('photo-' + photoId);
+  },
+  refreshPhoto: function (photoId) {
+    return this.readPhoto(photoId)
+      .then(function(photo) {
+        return decoratePhoto(photo, photoUrl(photoId));
+      })
+      .then(function(photo) {
+        return writeMemcache('photo-' + photoId, photo);
+      });
   },
   fetchContent: function () {
     return callFlickr({method: 'flickr.photosets.getList'})

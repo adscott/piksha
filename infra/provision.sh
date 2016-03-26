@@ -23,3 +23,5 @@ sudo cp -r /vagrant/files/flickr /opt/flickr
 sudo npm install --prefix /opt/flickr
 sudo cp /vagrant/files/flickr.conf /etc/init/
 sudo start flickr
+
+sudo apt-get install mongodb

@@ -11,7 +11,7 @@ var neat = require('node-neat');
 
 var auth = require('./auth');
 var media = require('./media');
-var event = require('./event');
+var event = require('./event-write');
 
 var config = require('./config');
 var clientDir = path.join(__dirname, '../client');
