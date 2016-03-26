@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+sudo rm -rf /var/lib/apt/lists/*
 sudo apt-get update
 sudo apt-get -y upgrade
 sudo apt-get -y install vim nodejs npm nodejs-legacy git memcached
