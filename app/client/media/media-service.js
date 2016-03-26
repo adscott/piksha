@@ -4,13 +4,13 @@ n('piksha.media', function (ns) {
     create: function () {
       return {
         albums: function () {
-          return new Promise(function (resolve) {
-            $.get('/api/albums').done(resolve);
+          return new Promise(function (resolve, reject) {
+            $.get('/api/albums').done(resolve).error(reject);
           });
         },
         asset: function (url) {
-          return new Promise(function (resolve) {
-            $.get(url).done(resolve);
+          return new Promise(function (resolve, reject) {
+            $.get(url).done(resolve).error(reject);
           });
         }
       };

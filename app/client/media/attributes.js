@@ -49,26 +49,27 @@ n('piksha.media', function (ns) {
       this.setState({attributeSelected: event.target.value});
     },
     save: function (event) {
-      event.preventDefault();
       var self = this;
 
+      event.preventDefault();
       self.clearErrors();
 
       var errors = attributesService.errors(self.state.attributes);
-      var attributesWithErrors = _.map(self.state.attributes, function (a) {
-        return _.contains(_.keys(errors), a.id) ? _.assign(a, {error: {visible: true, text: errors[a.id]}}) : a;
-      });
-
-      self.setState({attributes: attributesWithErrors});
 
       if (_.isEmpty(errors)) {
-        eventService.saveAttributes(self.state.attributes).then(function () {
+        eventService.saveAttributes(self.props.photoUrl, self.state.attributes).then(function () {
           var savedAttributes = _.map(self.state.attributes, function (a) {
             a.saved = true;
             return a;
           });
           self.setState({attributes: savedAttributes});
         });
+      } else {
+        var attributesWithErrors = _.map(self.state.attributes, function (a) {
+          return _.contains(_.keys(errors), a.id) ? _.assign(a, {error: {visible: true, text: errors[a.id]}}) : a;
+        });
+
+        self.setState({attributes: attributesWithErrors});
       }
     },
     render: function () {

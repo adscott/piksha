@@ -62,7 +62,7 @@ n('piksha.media', function (ns) {
               </div>
             </div>
             <h3 className="caption">{this.state.photo.title}</h3>
-            <piksha.media.Attributes photo={this.state.photo} />
+            <piksha.media.Attributes photoUrl={this.props.photoUrl} />
           </div>;
       } else {
         return <piksha.application.Loading />;

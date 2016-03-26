@@ -11,6 +11,7 @@ var neat = require('node-neat');
 
 var auth = require('./auth');
 var media = require('./media');
+var event = require('./event');
 
 var config = require('./config');
 var clientDir = path.join(__dirname, '../client');
@@ -98,6 +99,17 @@ app.get('/api/photos/:photoId', function (req, res) {
   }, function () {
     res.status(404).send('');
   });
+});
+
+app.post('/api/events', function (req, res) {
+  event.validate(req.body)
+    .then(function (result) {
+      if (result) {
+        return event.persist(req.body).then(function () { return 200; }, function () { return 500; });
+      }
+      return 400;
+    })
+    .then(function(status) { res.status(status).send(''); });
 });
 
 
