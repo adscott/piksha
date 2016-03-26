@@ -1,5 +1,6 @@
 var Promise = require('promise');
 var _ = require('lodash');
+var winston = require('winston');
 var MongoClient = require('mongodb').MongoClient;
 
 var config = require('./config');
@@ -32,6 +33,7 @@ module.exports = {
       }, function () { return false; });
   },
   persist: function (event, user) {
+    winston.debug('Persisting event');
     var e = _.assign(event, {
       user: user,
       timestamp: new Date()
@@ -40,9 +42,14 @@ module.exports = {
     return MongoClient.connect(config.mongodb.url)
       .then(function (db) {
         return db.collection('events').insert(e);
+      }, function (err) {
+        winston.error('Error connecting to mongodb', {error: err});
       })
       .then(function() {
+        winston.debug('Finished persisting event');
         return require('./media').refreshPhoto(photoIdFromURL(event.asset));
+      }, function (err) {
+        winston.error('Error inserting into mongodb', {error: err});
       });
   }
 };

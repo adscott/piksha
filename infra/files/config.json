@@ -1,4 +1,6 @@
 {
+  "logFile": "/home/vagrant/workspace/piksha.log",
+  "logLevel": "debug",
   "httpPort": 8888,
   "httpsPort": 8443,
   "publicHttpsPort": 8443,

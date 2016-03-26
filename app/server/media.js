@@ -4,6 +4,7 @@ var _ = require('lodash');
 var crypto = require('crypto');
 var needle = require('needle');
 var RateLimiter = require('limiter').RateLimiter;
+var winston = require('winston');
 
 var event = require('./event-read');
 var config = require('./config');
@@ -34,6 +35,7 @@ function queryString(parameters) {
 }
 
 function callFlickr(opts, retryCount) {
+  winston.debug('Calling flickr');
   retryCount = retryCount || 0;
 
   var parameters = _.assign({
@@ -57,12 +59,14 @@ function callFlickr(opts, retryCount) {
     limiter.removeTokens(1, function() {
       needle.get(url, function (err, res) {
         if (err) {
+          winston.error('Error calling flickr', {error: err});
           if (retryCount > 5) {
             throw err;
           } else {
             callFlickr(opts, retryCount + 1).then(resolve);
           }
         } else {
+          winston.debug('Finished calling flickr');
           resolve(res.body);
         }
       });
@@ -209,6 +213,7 @@ module.exports = {
       });
   },
   fetchContent: function () {
+    winston.info('Fetching content');
     return callFlickr({method: 'flickr.photosets.getList'})
       .then(function (list) { return list.photosets.photoset; })
       .then(function (photosets) {
@@ -220,6 +225,7 @@ module.exports = {
         }));
       })
       .then(extractPhotosets)
-      .then(savePhotosets);
+      .then(savePhotosets)
+      .then(function () { winston.info('Finished fetching content'); });
   }
 };

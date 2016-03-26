@@ -1,5 +1,7 @@
 var proxyquire = require('proxyquire');
 var _ = require('lodash');
+var winston = require('winston');
+winston.level = 'error';
 
 describe('media', function () {
 

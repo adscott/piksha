@@ -8,6 +8,7 @@ var cookieParser = require('cookie-parser');
 var forceSSL = require('express-force-ssl');
 var sass    = require('node-sass');
 var neat = require('node-neat');
+var winston = require('winston');
 
 var auth = require('./auth');
 var media = require('./media');
@@ -16,6 +17,10 @@ var event = require('./event-write');
 var config = require('./config');
 var clientDir = path.join(__dirname, '../client');
 var sharedDir = path.join(__dirname, '../shared');
+
+winston.level = 'debug';
+winston.add(winston.transports.File, { filename: config.logFile });
+winston.remove(winston.transports.Console);
 
 var app = express();
 
