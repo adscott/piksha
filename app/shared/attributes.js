@@ -75,6 +75,10 @@ n('piksha.shared', function (ns) {
               errors[attribute.id] = definition.error(attribute.value);
             }
 
+            if (_.isEmpty(_.trim(attribute.value))) {
+              errors[attribute.id] = 'Attributes cannot be blank.';
+            }
+
             return errors;
           }, {}, this);
         }

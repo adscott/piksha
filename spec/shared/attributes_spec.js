@@ -22,6 +22,26 @@ describe('attributes', function () {
     });
   });
 
+  describe('when an attribute is empty', function () {
+    beforeEach(function () {
+      errors = service.errors([{id: 'piksha456', name: 'subject', value: ''}]);
+    });
+
+    it('should return an error', function () {
+      expect(errors).toEqual({piksha456: 'Attributes cannot be blank.'});
+    });
+  });
+
+  describe('when an attribute is blank', function () {
+    beforeEach(function () {
+      errors = service.errors([{id: 'piksha456', name: 'subject', value: '    '}]);
+    });
+
+    it('should return an error', function () {
+      expect(errors).toEqual({piksha456: 'Attributes cannot be blank.'});
+    });
+  });
+
   describe('when there are multiple months', function () {
     describe('when values are contiguous', function () {
       beforeEach(function () {
