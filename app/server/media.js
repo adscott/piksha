@@ -148,7 +148,7 @@ function decoratePhoto(photo, events) {
   return event ? _.assign(photo, {attributes: event.data}) : photo;
 }
 
-function savePhoto(photo, photosetId) {
+function savePhoto(photo, photosetId, events) {
   winston.debug('Saving photo', {photo: photo, photosetId: photosetId});
   var cacheable = {
     title: photo.title,
@@ -157,7 +157,7 @@ function savePhoto(photo, photosetId) {
     album: '/api/albums/' + photosetId,
     url: photoUrl(photo.id)
   };
-  return Promise.resolve(decoratePhoto(cacheable, [])).then(function (decoratedPhoto) {
+  return Promise.resolve(decoratePhoto(cacheable, events)).then(function (decoratedPhoto) {
     return writeMemcache(decoratedPhoto.url, decoratedPhoto);
   }).then(function () { winston.debug('Finished saving photo', {photo: photo, photosetId: photosetId}); });
 }
@@ -189,12 +189,12 @@ function saveAlbumsList(photosets) {
   return writeMemcache('/api/albums', _.sortBy(albums, 'title')).then(function () { winston.debug('Finished saving albums list', {photosets: photosets}); });
 }
 
-function savePhotosets(photosets) {
+function savePhotosets(photosets, events) {
   var saveAlbumsListPromise = saveAlbumsList(photosets);
   var saveAlbumsPromises = _.map(photosets, saveAlbum);
   var savePhotosPromises = _.flatten(_.map(photosets, function (photoset) {
     return _.map(photoset.photos, function (photo) {
-      return savePhoto(photo, photoset.id);
+      return savePhoto(photo, photoset.id, events);
     });
   }));
 
@@ -232,7 +232,9 @@ module.exports = {
         }));
       })
       .then(extractPhotosets)
-      .then(savePhotosets)
+      .then(function (photosets) {
+        return eventReader.retrieveCurrent().then(function (events) { return savePhotosets(photosets, events); });
+      })
       .then(function () { winston.info('Finished fetching content'); });
   }
 };

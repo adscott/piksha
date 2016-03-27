@@ -1,3 +1,4 @@
+var Promise = require('promise');
 var proxyquire = require('proxyquire');
 var _ = require('lodash');
 var winston = require('winston');
@@ -5,7 +6,7 @@ winston.level = 'error';
 
 describe('media', function () {
 
-  var cache, flickrResponses, media;
+  var cache, flickrResponses, media, currentEvents;
 
   var memcachedStub = function () {
     this.set = function (key, value, timeout, callback) {
@@ -34,7 +35,7 @@ describe('media', function () {
   };
   var eventReaderStub = {
     retrieveCurrent: function() {
-      return [];
+      return Promise.resolve(currentEvents);
     }
   };
 
@@ -85,6 +86,13 @@ describe('media', function () {
         };
       }
     };
+    currentEvents = [
+      {
+        type: 'edit-photo',
+        asset: '/api/photos/1123456',
+        data: [{name: 'country', value: 'Hong Kong'}]
+      }
+    ];
 
     process.env.PIKSHA_CONFIG = 'infra/files/config';
 
@@ -92,7 +100,7 @@ describe('media', function () {
       memcached: memcachedStub,
       needle: needleStub,
       limiter: limiterStub,
-      eventReader: eventReaderStub
+      './event-reader': eventReaderStub
     });
   });
 
@@ -173,6 +181,10 @@ describe('media', function () {
         });
       });
 
+      it('should assign a url', function () {
+        expect(photo.url).toBe('/api/photos/1123456');
+      });
+
       it('should assign a title', function () {
         expect(photo.title).toBe('Title 1');
       });
@@ -188,8 +200,10 @@ describe('media', function () {
       it('should assign an album url to photos', function () {
         expect(photo.album).toBe('/api/albums/123456');
       });
+
+      it('should populate with attributes', function () {
+        expect(photo.attributes[0].value).toBe('Hong Kong');
+      });
     });
   });
-
-
 });
