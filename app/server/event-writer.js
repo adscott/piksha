@@ -9,10 +9,6 @@ var AttributesService = require('../shared/attributes').AttributesService;
 var apiPhotoBase = '/api/photos/';
 var expectedKeys = ['type', 'asset', 'data'];
 
-function photoIdFromURL(photoUrl) {
-  return photoUrl.slice(apiPhotoBase.length);
-}
-
 var basicValidations = [
   function (event) { return expectedKeys.length === _.intersection(expectedKeys, _.keys(event)).length; },
   function (event) { return _.includes(['edit-photo'], event.type); },
