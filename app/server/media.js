@@ -216,6 +216,8 @@ module.exports = {
             .then(function (photo) { return decoratePhoto(photo, events); })
             .then(function(photo) { return writeMemcache(photo.url, photo); });
         }));
+      }, function (err) {
+        winston.error('Error retrieving events', {error: err});
       })
       .then(function() { winston.debug('Finished refreshing photos'); });
   },

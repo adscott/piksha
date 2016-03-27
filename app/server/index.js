@@ -78,11 +78,11 @@ app.all('/api/*', function (req,res,next) {
 app.get('/api/', function (req, res) {
   res.send({
     user: auth.user(req.cookies.key),
-    albums: '/api/albums/'
+    albums: '/api/albums'
   });
 });
 
-function readModel(res, req) {
+function readModel(req, res) {
   media.read(req.path).then(function (model) {
     res.send(model);
   }, function () {
@@ -98,7 +98,10 @@ app.post('/api/events', function (req, res) {
   eventWriter.validate(req.body)
     .then(function (result) {
       if (result) {
-        return eventWriter.persist(req.body).then(function () { return 200; }, function () { return 500; });
+        return eventWriter.persist(req.body).then(function () { return 200; }, function (err) {
+          winston.error('Error persisting event', {error: err});
+          return 500;
+        });
       }
       return 400;
     })

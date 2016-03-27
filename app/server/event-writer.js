@@ -47,7 +47,7 @@ module.exports = {
       })
       .then(function() {
         winston.debug('Finished persisting event');
-        return require('./media').refreshPhoto(photoIdFromURL(event.asset));
+        return require('./media').refreshPhotos();
       }, function (err) {
         winston.error('Error inserting into mongodb', {error: err});
       });
