@@ -6,7 +6,7 @@ var needle = require('needle');
 var RateLimiter = require('limiter').RateLimiter;
 var winston = require('winston');
 
-var event = require('./event-read');
+var eventReader = require('./event-reader');
 var config = require('./config');
 var limiter = new RateLimiter(1, 100);
 var memcached = new Memcached(config.memcached.host + ':' + config.memcached.port);
@@ -35,7 +35,7 @@ function queryString(parameters) {
 }
 
 function callFlickr(opts, retryCount) {
-  winston.debug('Calling flickr');
+  winston.debug('Calling flickr', {opts: opts});
   retryCount = retryCount || 0;
 
   var parameters = _.assign({
@@ -75,11 +75,14 @@ function callFlickr(opts, retryCount) {
 }
 
 function readMemcache(key) {
+  winston.debug('Reading memcache', {key: key});
   return new Promise(function (resolve, reject) {
     memcached.get(key, function (err, result) {
       if (err) {
-        reject();
+        winston.error('Error reading memcache', {key: key, error: err});
+        reject(err);
       } else {
+        winston.debug('Finished reading memcache', {key: key, result: result});
         if (result) {
           resolve(JSON.parse(result));
         } else {
@@ -92,10 +95,13 @@ function readMemcache(key) {
 
 function writeMemcache(key, value) {
   return new Promise(function (resolve, reject) {
+    winston.debug('Writing memcache', {key: key, value: value});
     memcached.set(key, JSON.stringify(value), 0, function (err) {
       if (err) {
-        reject();
+        winston.error('Error writing memcache', {key: key, value: value, error: err});
+        reject(err);
       } else {
+        winston.debug('Finished writing memcache', {key: key, value: value});
         resolve(value);
       }
     });
@@ -137,36 +143,40 @@ function photoUrl(photoId) {
   return '/api/photos/' + photoId;
 }
 
-function decoratePhoto(photo, photoUrl) {
-  return event.retrieve(photoUrl).then(function (events) {
-    return events.length > 0 ? _.assign(photo, {attributes: events[0].data}) : photo;
-  });
+function decoratePhoto(photo, events) {
+  var event = _.find(events, {asset: photo.url});
+  return event ? _.assign(photo, {attributes: event.data}) : photo;
 }
 
 function savePhoto(photo, photosetId) {
+  winston.debug('Saving photo', {photo: photo, photosetId: photosetId});
   var cacheable = {
     title: photo.title,
     thumbnail: photo.thumbnail,
     full: photo.full,
-    album: '/api/albums/' + photosetId
+    album: '/api/albums/' + photosetId,
+    url: photoUrl(photo.id)
   };
-  return decoratePhoto(cacheable, photoUrl(photo.id)).then(function (decoratedPhoto) {
-    return writeMemcache('photo-' + photo.id, decoratedPhoto);
-  });
+  return Promise.resolve(decoratePhoto(cacheable, [])).then(function (decoratedPhoto) {
+    return writeMemcache(decoratedPhoto.url, decoratedPhoto);
+  }).then(function () { winston.debug('Finished saving photo', {photo: photo, photosetId: photosetId}); });
 }
 
 function saveAlbum(photoset) {
-  return writeMemcache('album-' + photoset.id, {
+  winston.debug('Saving album', {photoset: photoset});
+  return writeMemcache('/api/albums/' + photoset.id, {
+    url: '/api/albums/' + photoset.id,
     title: photoset.title,
     photos: photoset.photos.map(function (photo) { return {
       title: photo.title,
       thumbnail: photo.thumbnail,
       url: '/api/photos/' + photo.id
     }; })
-  });
+  }).then(function () { winston.debug('Finished saving album', {photoset: photoset}); });
 }
 
 function saveAlbumsList(photosets) {
+  winston.debug('Saving albums list', {photosets: photosets});
   var albums = _.map(photosets, function(photoset) {
     return {
       title: photoset.title,
@@ -176,7 +186,7 @@ function saveAlbumsList(photosets) {
       url: '/api/albums/' + photoset.id
     };
   });
-  return writeMemcache('albums', _.sortBy(albums, 'title'));
+  return writeMemcache('/api/albums', _.sortBy(albums, 'title')).then(function () { winston.debug('Finished saving albums list', {photosets: photosets}); });
 }
 
 function savePhotosets(photosets) {
@@ -194,23 +204,20 @@ function savePhotosets(photosets) {
 }
 
 module.exports = {
-  readAlbum: function (albumId) {
-    return readMemcache('album-' + albumId);
+  read: function (url) {
+    return readMemcache(url);
   },
-  readAlbums: function () {
-    return readMemcache('albums');
-  },
-  readPhoto: function (photoId) {
-    return readMemcache('photo-' + photoId);
-  },
-  refreshPhoto: function (photoId) {
-    return this.readPhoto(photoId)
-      .then(function(photo) {
-        return decoratePhoto(photo, photoUrl(photoId));
+  refreshPhotos: function () {
+    winston.debug('Refreshing photos');
+    return eventReader.retrieveCurrent()
+      .then(function(events) {
+        return Promise.all(_.map(events, function (event) {
+          return readMemcache(event.asset)
+            .then(function (photo) { return decoratePhoto(photo, events); })
+            .then(function(photo) { return writeMemcache(photo.url, photo); });
+        }));
       })
-      .then(function(photo) {
-        return writeMemcache('photo-' + photoId, photo);
-      });
+      .then(function() { winston.debug('Finished refreshing photos'); });
   },
   fetchContent: function () {
     winston.info('Fetching content');

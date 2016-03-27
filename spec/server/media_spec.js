@@ -32,6 +32,11 @@ describe('media', function () {
       };
     }
   };
+  var eventReaderStub = {
+    retrieveCurrent: function() {
+      return [];
+    }
+  };
 
   beforeEach(function () {
     cache = {};
@@ -86,7 +91,8 @@ describe('media', function () {
     media = proxyquire('../../app/server/media', {
       memcached: memcachedStub,
       needle: needleStub,
-      limiter: limiterStub
+      limiter: limiterStub,
+      eventReader: eventReaderStub
     });
   });
 
@@ -99,7 +105,7 @@ describe('media', function () {
       var albums;
 
       beforeEach(function (done) {
-        media.readAlbums().then(function (albumsRead) {
+        media.read('/api/albums').then(function (albumsRead) {
           albums = albumsRead;
           done();
         });
@@ -130,7 +136,7 @@ describe('media', function () {
       var album;
 
       beforeEach(function (done) {
-        media.readAlbum('123456').then(function (albumRead) {
+        media.read('/api/albums/123456').then(function (albumRead) {
           album = albumRead;
           done();
         });
@@ -161,7 +167,7 @@ describe('media', function () {
       var photo;
 
       beforeEach(function (done) {
-        media.readPhoto('1123456').then(function (photoRead) {
+        media.read('/api/photos/1123456').then(function (photoRead) {
           photo = photoRead;
           done();
         });

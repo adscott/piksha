@@ -26,7 +26,7 @@ module.exports = {
   validate: function (event) {
     return Promise.resolve(_.every(basicValidations, function (validation) { return validation(event); }))
       .then(function (result) {
-        return result ? require('./media').readPhoto(photoIdFromURL(event.asset)) : false;
+        return result ? require('./media').read(event.asset) : false;
       }, function () { return false; })
       .then(function(result) {
         return !!result;

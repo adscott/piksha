@@ -12,7 +12,7 @@ var winston = require('winston');
 
 var auth = require('./auth');
 var media = require('./media');
-var event = require('./event-write');
+var eventWriter = require('./event-writer');
 
 var config = require('./config');
 var clientDir = path.join(__dirname, '../client');
@@ -82,41 +82,28 @@ app.get('/api/', function (req, res) {
   });
 });
 
-app.get('/api/albums/', function (req, res) {
-  media.readAlbums().then(function (albums) {
-    res.send(albums);
+function readModel(res, req) {
+  media.read(req.path).then(function (model) {
+    res.send(model);
   }, function () {
     res.status(404).send('');
   });
-});
+}
 
-app.get('/api/albums/:albumId', function (req, res) {
-  media.readAlbum(req.params.albumId).then(function (album) {
-    res.send(album);
-  }, function () {
-    res.status(404).send('');
-  });
-});
-
-app.get('/api/photos/:photoId', function (req, res) {
-  media.readPhoto(req.params.photoId).then(function (photo) {
-    res.send(photo);
-  }, function () {
-    res.status(404).send('');
-  });
-});
+app.get('/api/albums', readModel);
+app.get('/api/albums/:albumId', readModel);
+app.get('/api/photos/:photoId', readModel);
 
 app.post('/api/events', function (req, res) {
-  event.validate(req.body)
+  eventWriter.validate(req.body)
     .then(function (result) {
       if (result) {
-        return event.persist(req.body).then(function () { return 200; }, function () { return 500; });
+        return eventWriter.persist(req.body).then(function () { return 200; }, function () { return 500; });
       }
       return 400;
     })
     .then(function(status) { res.status(status).send(''); });
 });
-
 
 media.fetchContent().then(function () {
   http.createServer(app).listen(config.httpPort);
