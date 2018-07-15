@@ -1,12 +1,9 @@
 var http = require('http');
-var https = require('https');
-var fs = require('fs');
 var path = require('path');
 var express = require('express');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
-var forceSSL = require('express-force-ssl');
-var sass    = require('node-sass');
+var sass = require('node-sass');
 var neat = require('node-neat');
 var winston = require('winston');
 
@@ -24,9 +21,6 @@ winston.remove(winston.transports.Console);
 
 var app = express();
 
-app.set('httpsPort', config.publicHttpsPort);
-
-app.use(forceSSL);
 app.use(bodyParser.json());
 app.use(cookieParser());
 
@@ -110,11 +104,6 @@ app.post('/api/events', function (req, res) {
 
 media.fetchContent().then(function () {
   http.createServer(app).listen(config.httpPort);
-  https.createServer({
-    key: fs.readFileSync(config.sslKey),
-    cert: fs.readFileSync(config.sslCert),
-    ca: fs.readFileSync(config.sslBundle)
-  }, app).listen(config.httpsPort);
 });
 
 setInterval(media.fetchContent, 24 * 60 * 60 * 1000);

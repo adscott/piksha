@@ -2,25 +2,20 @@
   "logFile": "/home/vagrant/workspace/piksha.log",
   "logLevel": "debug",
   "httpPort": 8888,
-  "httpsPort": 8443,
-  "publicHttpsPort": 8443,
-  "sslKey": "/etc/ssl/certs/server.key",
-  "sslCert": "/etc/ssl/certs/server.crt",
-  "sslBundle": "/etc/ssl/certs/server.bundle",
   "users": ["bruce", "wayne"],
   "secret": "some big long secret",
   "memcached": {
-    "host": "localhost",
+    "host": "memcached",
     "port": 11211
   },
   "flickr": {
-    "baseUrl": "http://localhost:9999/",
+    "baseUrl": "http://flickr:9999/",
     "oauthToken": "token123",
     "oauthTokenSecret": "tokensecret123",
     "oauthClientKey": "clientkey123",
     "oauthClientSecret": "clientsecret123"
   },
   "mongodb": {
-    "url": "mongodb://localhost:27017/piksha"
+    "url": "mongodb://mongo:27017/piksha"
   }
 }

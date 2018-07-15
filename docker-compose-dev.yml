@@ -1,0 +1,15 @@
+version: '3'
+services:
+  app:
+    build: .
+    volumes:
+      - "./stubs/piksha/config.json:/etc/piksha/config.json"
+    ports:
+      - "8888:8888"
+  flickr:
+    build: ./stubs/flickr
+  mongodb:
+    image: mongo
+  memcached:
+    image: memcached
+    

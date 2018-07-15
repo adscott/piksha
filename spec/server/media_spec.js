@@ -94,7 +94,7 @@ describe('media', function () {
       }
     ];
 
-    process.env.PIKSHA_CONFIG = 'infra/files/config';
+    process.env.PIKSHA_CONFIG = 'stubs/piksha/config';
 
     media = proxyquire('../../app/server/media', {
       memcached: memcachedStub,

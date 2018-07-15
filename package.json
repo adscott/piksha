@@ -4,7 +4,6 @@
   "description": "A web application for capturing image metadata.",
   "main": "index.js",
   "scripts": {
-    "package": "cd debbuild && rm -f piksha-1.deb && ./redeb.sh",
     "test": "eslint . && jasmine",
     "start": "node app/server/index.js",
     "keys": "node scripts/print_keys.js"
